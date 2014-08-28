@@ -6,6 +6,8 @@ Here are some basic outlines of potential applications that fit beneath the umbr
 
 #### Ballot Measure/Initiative Tracker
 
+**Wiki** is [here](https://github.com/SCPR/accountability-tracker/wiki)
+
 An approach to educating voters about the ballot initiative process
 
 * Understand and discuss initiatives in circulation
@@ -14,7 +16,7 @@ An approach to educating voters about the ballot initiative process
 
 ----
 
-1. Initiative Tracker
+* Initiative Tracker
 
     * A semi-automated interactive tracker based on information from the Secretary of State and Attorney General.
 
@@ -42,20 +44,20 @@ An approach to educating voters about the ballot initiative process
     * potentially taking this a step further, some way to link the audience to the proponents if they want to sign
       * you might not run into a signature gatherer, and if you do, it's probably a grocery store and you don't want to be bothered at that moment...allowing people to get involved on their own time is a useful public service
 
-2. Digital Explainers
+* Digital Explainers
 
     * web-based articles examining specific initiatives, but also explainers about the process.
         * how much does it cost to get 504,000 signatures, that is, to get an initiative on the ballot?
         * who writes our initiatives? It's actually an exclusive club of lawyers in California
         * what does it take to find 504,000 VALID signatures...one measure shows tens of thousands of invalid signatures...is that common? Are there alternatives to the grocery-store signature-gathering process?
 
-3. Radio spots
+* Radio spots
 
     * Two-ways or features promoting the tracker, explaining the initiative process in more detail, and examining specific measures
         * Off-season, these would be about initiatives that are in circulation, gathering signatures, making people more aware of what grassroots changes are afoot and what could appear on future ballots
         * On-season, these would focus more on qualified ballot measures to prepare for upcoming elections
 
-4. Tie-ins to our political coverage
+* Tie-ins to our political coverage
 
     * Relevant stories can always link back to the tracker, and the tracker can curate relevant stories from our staff, including blog posts from Represent!
 
