@@ -52,3 +52,15 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# added by me
+.DS_Store
+settings_development.py
+*.pyc
+*.sqlite
+*.csv
+*.txt
+SCRATCHPAD.md
+tmp/*
+public/static/*
+config/*.yml
+dbsync_setup.rb
