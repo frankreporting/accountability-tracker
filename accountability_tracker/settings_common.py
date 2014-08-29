@@ -4,6 +4,7 @@ SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 
 ADMINS = (
     ('Chris Keller', 'ckeller@scpr.org'),
+    ('Brian Frank', 'brian.frank@scpr.org'),
 )
 
 SEND_BROKEN_LINK_EMAILS = True
@@ -71,16 +72,18 @@ MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'calfire_tracker.middleware.XsSharing'
+    #'calfire_tracker.middleware.XsSharing'
 )
 
-CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MIDDLEWARE_SECONDS = (60 * 5)
-CACHE_MIDDLEWARE_KEY_PREFIX = ''
+#CACHE_MIDDLEWARE_ALIAS = 'default'
+#CACHE_MIDDLEWARE_SECONDS = (60 * 5)
+#CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
-ROOT_URLCONF = 'firetracker.urls'
+ROOT_URLCONF = 'accountability_tracker.urls'
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.admindocs',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -91,20 +94,12 @@ INSTALLED_APPS = (
     'django.contrib.redirects',
     'django.contrib.humanize',
 
-    # apps
-    'calfire_tracker',
-
     # api & tools
-    'south',
-    'django_admin_bootstrapped',
-    'massadmin',
-    'debug_toolbar',
-    'tastypie',
-    'commander',
-
-    # admin
-    'django.contrib.admin',
-    'django.contrib.admindocs',
+    #'south',
+    #'django_admin_bootstrapped',
+    #'massadmin',
+    #'debug_toolbar',
+    #'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
