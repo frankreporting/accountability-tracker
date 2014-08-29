@@ -94,8 +94,11 @@ INSTALLED_APPS = (
     'django.contrib.redirects',
     'django.contrib.humanize',
 
+    # installed applications
+    'ballot_initiatives',
+    
     # api & tools
-    #'south',
+    'south',
     #'django_admin_bootstrapped',
     #'massadmin',
     #'debug_toolbar',
