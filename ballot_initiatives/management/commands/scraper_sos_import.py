@@ -262,25 +262,33 @@ def convert_time_to_nicey_format(date_time_parse):
 
 
 def check_if_exists_or_has_new_info(init):
-	try:
-		query_init = Initiative.objects.get(sos_id=init["sos_id"])
-		decide_whether_to_update(init,query_init)
-	except:
-		try:
-			query_init = Initiative.objects.get(ag_id=init["ag_id"])
-			decide_whether_to_update(init,query_init)
-		except:
+	#Need to add another nested layer to try matching prop_num if sos_id and ag_id fail
+	query_init = Initiative.objects.filter(sos_id__exact=init["sos_id"]).exclude(sos_id__exact="")
+	if len(query_init) == 0:
+		query_init = Initiative.objects.filter(ag_id__exact=init["ag_id"]).exclude(ag_id__exact="")
+		if len(query_init) == 0:
+			#logging.debug(init["ag_id"] + " or " + init["sos_id"] + " is not in the database. Need to add.")
 			create_and_save(init)
-	#logging.debug(init)
+		elif len(query_init) > 1:
+			logging.debug("There's a duplicate of " + init["ag_id"] + " in the database.")
+		else:
+			decide_whether_to_update(init,query_init[0])
+	elif len(query_init) > 1:
+		logging.debug("There's a duplicate of " + init["sos_id"] + "|" + init["ag_id"] + " in the database.")
+	else:
+		decide_whether_to_update(init,query_init[0])
 
 
 def decide_whether_to_update(init,queried):
 	if queried.status != init["status"]:
+		#logging.debug(queried.ag_id + " has a status update. Status in database is " + queried.status + " but imported status is " + init["status"])
 		update_existing(init,queried)
-	elif queried.status == init["status"] and query_init.status == "pending-signature-verification":
+	elif queried.status == init["status"] and queried.status == "pending-signature-verification":
+		#logging.debug(queried.ag_id + " is pending signature verification. Need to check for sample updates.")
 		update_existing(init,queried)
 	else:
-		pass
+		#pass
+		logging.debug(queried.ag_id + "'s status has not changed. No need to update.")
 
 
 def update_existing(init,queried):
