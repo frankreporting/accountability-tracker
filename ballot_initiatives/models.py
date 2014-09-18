@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 class Initiative(models.Model):
 	ag_id = models.CharField(max_length=10,blank=True)
-	id_note = models.CharField(max_length=50,blank=True)
+	id_note = models.CharField(max_length=200,blank=True)
 	sos_id = models.CharField(max_length=10,blank=True)
 	title = models.CharField(max_length=999,blank=True)
 	summary = models.CharField(max_length=9999,blank=True)
@@ -24,3 +24,4 @@ class Initiative(models.Model):
 	date_sample_update = models.DateTimeField('Date Signature Count Updated',blank=True,null=True)
 	sig_count_link = models.CharField(max_length=200,blank=True)
 	fiscal_impact_link = models.CharField(max_length=200,blank=True)
+	proposition_type = models.CharField(max_length=100,blank=True)
