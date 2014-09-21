@@ -98,10 +98,11 @@ def request_url_in(base_url):
 			logger.debug("No new initiatives or changes for status '" + s + ".'")
 	
 	#Set key-value pairs
-	keys = ['ag_id','id_note','sos_id','title','summary','full_text_link','proponent','email','phone','date_sum','status','date_qualified','date_failed','date_sample_due','date_raw_count_due','date_circulation_deadline','sigs_req','date_sample_update','sig_count_link','fiscal_impact_link','election','prop_num']
+	keys = ['ag_id','id_note','sos_id','title','summary','full_text_link','proponent','email','phone','date_sum','date_sum_estimate','status','date_qualified','date_failed','date_sample_due','date_raw_count_due','date_circulation_deadline','sigs_req','date_sample_update','sig_count_link','fiscal_impact_link','election','prop_num']
 
 	importset = []
 	
+
 	if rows:
 		#Convert to list of dicts
 		for row in rows:
@@ -112,8 +113,6 @@ def request_url_in(base_url):
 		#Compare each dict to database and decide what to do
 		for init in importset:
 			check_if_exists_or_has_new_info(init)
-			#pass
-		#write_data(headers,rows)
 	else:
 		logger.debug("Nothing to import or update.")
 
@@ -122,10 +121,67 @@ def parse_based_on_status(html,init_status):
 	data_block = html.find(id="centercontent")
 	if init_status == "qualified-ballot-measures":
 		rows = parse_qualified_init_data(data_block,init_status)
+	elif init_status == "attorney-general-information":
+		rows = parse_pendingAG_init_data(data_block,init_status)
 	else:
-		parse_nonqualified_init_data(data_block,init_status)
-		rows = []
+		rows = parse_nonqualified_init_data(data_block,init_status)
 	return rows
+
+def parse_pendingAG_init_data(data_block,init_status):
+	#set defaults
+	ag_id=""
+	id_note=""
+	sos_id=""
+	initiative_title=""
+	summary=""
+	full_text_link=""
+	proponent=""
+	email_adr=""
+	phone_num=""
+	date_sum=""
+	date_sum_estimate=""
+	date_qualified=""
+	date_failed=""
+	date_sample_due=""
+	date_raw_count_due=""
+	date_circulation_deadline=""
+	sigs_req=""
+	date_sample_update=""
+	sig_count_link=""
+	fiscal_impact_link=""
+	prop_num=""
+	election=""
+
+	return_rows = []
+	table = data_block.findAll("table")
+	#If more than one table exists, we have a problem...
+	if len(table) > 1:
+		logger.debug("Problem: More than one table listed. Please double-check SoS site.")
+
+	#If table doesn't exist...
+	elif not table:
+		logger.debug("No new initiatives pending Attorney General review.")
+
+	#If table exists, scrape initiatives...
+	else:
+		inits = []
+		rows = table[0].findAll("tr")
+		for r in rows:
+			if r.find("td"):
+				inits.append(r)
+
+		#Process initiative data
+		for i in inits:
+			init_data = i.findAll("td")
+			ag_id_block = init_data[0].text.encode("utf-8").split()
+			ag_id = ag_id_block[0].strip()
+			date_sum_estimate = ag_id_block[len(ag_id_block)-1].strip()			
+			full_text_link = init_data[1].a["href"]
+			initiative_title = init_data[1].text.encode("utf-8").strip().replace('"','')
+			proponent = init_data[2].text.encode("utf-8").strip()
+			return_rows.append([ag_id,id_note,sos_id,initiative_title,summary,full_text_link,proponent,email_adr,phone_num,date_sum,date_sum_estimate,init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
+	
+	return return_rows
 
 def parse_qualified_init_data(data_block,init_status):
 	elections = data_block.findAll("h2")
@@ -175,6 +231,7 @@ def get_qualified_init_details(data,prop_id,election):
 	email_adr=""
 	phone_num=""
 	date_sum=""
+	date_sum_estimate=""
 	init_status="qualified-ballot-measures"
 	date_qualified=""
 	date_failed=""
@@ -187,6 +244,8 @@ def get_qualified_init_details(data,prop_id,election):
 	fiscal_impact_link=""
 	prop_num=""
 	
+	""" Scraper test code for qualified initiatives begins here """
+
 	#Parse prop id line based on all possible scenarios
 	prop = data.find("p",{"id": prop_id})
 
@@ -287,8 +346,7 @@ def get_qualified_init_details(data,prop_id,election):
 			initiative_title = prop_title_block[1].strip() + " \xe2\x80\x94 " + initiative_title
 	#logger.debug(prop_num + " | " + ag_id + " | " + sos_id)
 
-
-	""" Qualified prop scraper code is tested up to this line with qual_test.py """
+	""" Scraper test code for qualified initiatives ends here """
 
 	#If ag_id isn't present, try fetching from AG site...
 	#logger.debug(prop_num + ": ag_id is " + ag_id + " and date_qualified is " + date_qualified)
@@ -305,7 +363,7 @@ def get_qualified_init_details(data,prop_id,election):
 		logger.debug("No ag_id or prop_num for " + sos_id + " (" + initiative_title + "). Could be a legislative referral or there could be a problem. User needs to verify manually.")
 		#Enter email alert info here
 
-	return([ag_id,id_note,sos_id,initiative_title.strip(),summary.strip(),full_text_link,proponent,email_adr,phone_num,date_sum.strip(),init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
+	return([ag_id,id_note,sos_id,initiative_title.strip(),summary.strip(),full_text_link,proponent,email_adr,phone_num,date_sum.strip(),date_sum_estimate,init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
 
 def attempt_ag_site_match(pnum):
 	ag_qualified_props = []
@@ -401,6 +459,7 @@ def parse_nonqualified_init_data(data_block,init_status):
 
 			#Set dates and sigs_req fields to empty first
 			date_sum = ""
+			date_sum_estimate= ""
 			date_qualified = ""
 			date_failed = ""
 			date_sample_due = ""
@@ -477,7 +536,7 @@ def parse_nonqualified_init_data(data_block,init_status):
 				full_text_link = ""
 				
 		#Add info to row cells and append to rows list according to initiative status
-		rows.append([ag_id,id_note,sos_id,initiative_title.strip(),summary.strip(),full_text_link,proponent,email_adr,phone_num,date_sum.strip(),init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
+		rows.append([ag_id,id_note,sos_id,initiative_title.strip(),summary.strip(),full_text_link,proponent,email_adr,phone_num,date_sum.strip(),date_sum_estimate,init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
 
 	return rows
 
@@ -698,6 +757,9 @@ def create_and_save(init):
 	if init.has_key("date_sum"):
 		if init["date_sum"]:
 			newrecord.date_sum = convert_time_to_nicey_format(init["date_sum"])
+	if init.has_key("date_sum_estimate"):
+		if init["date_sum_estimate"]:
+			newrecord.date_sum_estimate = convert_time_to_nicey_format(init["date_sum_estimate"])
 	if init.has_key("full_text_link"):
 		newrecord.full_text_link = init["full_text_link"]
 	if init.has_key("proponent"):

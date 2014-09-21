@@ -11,6 +11,7 @@ class Initiative(models.Model):
 	email = models.CharField(max_length=200,blank=True)
 	phone = models.CharField(max_length=20,blank=True)
 	date_sum = models.DateTimeField('Summary Date',blank=True,null=True)
+	date_sum_estimate = models.DateTimeField('Estimated Date for Title/Summary',blank=True,null=True)
 	status = models.CharField(max_length=50,blank=True)
 	date_circulation_deadline = models.DateTimeField('Circulation Deadline',blank=True,null=True)
 	sigs_req = models.CharField(max_length=10,blank=True,null=True)

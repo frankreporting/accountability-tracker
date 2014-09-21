@@ -11,26 +11,21 @@ from dateutil import parser
 from BeautifulSoup import BeautifulSoup, Tag, BeautifulStoneSoup
 logging.basicConfig(level=logging.DEBUG)
 
-# QUALIFIED PROPOSITION SCRAPER TESTS
+# SCRAPER TESTS
 ## Use this to test how the scraper will handle the different ways
-##	initiatives and referenda appear on the Sec State's qualified
-##	ballot measures page. Initiatives and legislative referrals
-##	are formatted differently, for instance, and the information
-##	included for each changes over time.
-##
-## Test cases so far include:
-##
-##	- InitFirstQualTestCase: initiative first qualifies; has ag_id, sos_id and sig_count_link but no prop number
-##	- LegRefFirstQualTestCase: legislative referral first qualifies; has ag_id but no prop_num or sig_count_link
-##	- LegRefPropNumAssignedTestCase: legislative referral's prop_num first assigned and still has sos_id
-##	- InitPropNumAssignedTestCase: initiative's prop_num first assigned and still has sos_id and ag_id
-##	- PropNumOnlyTestCase: after public display, prop_num but ag_id removed
-##	- PropNumNoteTestCase: prop_num assigned but with note/asterisk
+##	initiatives and referenda appear on the Sec State's ballot
+##	measures pages, particularly for new (pending-AG) or qualified
+##	measures. Initiatives and legislative referrals are formatted 
+##	differently, for instance, and the information included
+##	for each changes over time, for qualified initiatives.
 
-#Set up test cases here. Use 'checkfields' to show the desired outcomes
-TestCases = [
+#Set up test cases here. Use 'checkfields' to show the desired outcomes. Group similar TestCases in TestSuite arrays.
+
+## TEST SUITE FOR QUALIFIED INITIATIVE PAGE (http://www.sos.ca.gov/elections/ballot-measures/qualified-ballot-measures.htm)
+QualifiedInitiativeTestSuite = [
 	{'test':'InitPropNumAssignedTestCase',
 		'content':'<p id="1541" class="prop-number-ag">Proposition 41 &mdash; 1541. (11-0070)</p>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'1541',
 			'ag_id':'11-0070',
@@ -38,6 +33,7 @@ TestCases = [
 	},
 	{'test':'InitFirstQualTestCase',
 		'content':'<p id="1541" class="prop-number-ag">1541. (11-0070) - <a class="prop-link" href="/elections/pend_sig/init-sample-1541-082312.pdf">Final Full Check Update - 08/23/12</a></p><p class="text-strong">Approval of Healthcare Insurance Rate Changes. Initiative Statute.</p><p class="prop-status">Qualified: 08/23/12</p><p>Proponent: Jamie Court</p><p class="prop-text">Requires health insurance rate changes to be approved by Insurance Commissioner before taking effect. Requires sworn statement by health insurer as to accuracy of information submitted to Insurance Commissioner to justify rate changes. Provides for public notice, disclosure and hearing on health insurance rate changes, and subsequent judicial review. Does not apply to employer large group health plans. Prohibits health, auto and homeowners insurers from determining policy eligibility or rates based on lack of prior coverage or credit history. Summary of estimate by Legislative Analyst and Director of Finance of fiscal impact on state and local government: <span class="text-strong">Increased state administrative costs ranging in the low millions to low tens of millions of dollars annually to regulate health insurance rates, funded with revenues collected from filing fees paid by health insurance companies.</span> (11-0070) <a href="http://ag.ca.gov/cms_attachments/initiatives/pdfs/i1013_11-0070_(insurance_affordability).pdf">(Full Text)</a></p>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'1541',
 			'ag_id':'11-0070',
@@ -53,6 +49,7 @@ TestCases = [
 	},
 	{'test':'LegRefFirstQualTestCase',
 		'content':'<p id="ab-639" class="prop-number-ag"><a href="/elections/ballot-measures/pdf/sca-17.pdf">SCA 17 (Resolution Chapter 127, Statutes of 2014), Steinberg. Members of the Legislature: suspension.</a></p>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'ab-639',
 			'ag_id':'',
@@ -62,6 +59,7 @@ TestCases = [
 	},
 	{'test':'LegRefPropNumAssignedTestCase',
 		'content':'<p id="ab-639" class="prop-number">Proposition 41 &mdash; AB 639. (Chapter 727, 2013), P&eacute;rez.</p><p class="prop-type">Legislative Bond Act</p><p class="prop-title"><a href="/elections/ballot-measures/pdf/ab-639.pdf">Veterans Housing and Homeless Prevention Bond Act of 2014: Veterans Housing and Homeless Prevention Act of 2014</a>.</p>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'ab-639',
 			'ag_id':'',
@@ -70,6 +68,7 @@ TestCases = [
 	},
 	{'test':'PropNumOnlyTestCase',
 		'content':'<p id="prop45" class="prop-number">Proposition 45</p><br /><p class="prop-title"><a href="http://vig.cdn.sos.ca.gov/2014/general/pdf/complete-vig.pdf#page=67">Healthcare Insurance. Rate Changes. Initiative Statute.</a></p>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'',
 			'ag_id':'',
@@ -79,6 +78,7 @@ TestCases = [
 	},
 	{'test':'PropNumNoteTestCase',
 		'content':'<p id="prop44" class="prop-number">Proposition 2*</p><br /><p class="prop-title"><a href="http://vig.cdn.sos.ca.gov/2014/general/pdf/complete-vig.pdf#page=64">State Budget. Budget Stabilization Account. Legislative Constitutional Amendment.</a></p><p><span class="text-emphasis">*Senate Bill 867 (Chapter 186, 2014) was signed by the Governor on August 11, 2014; changing the proposition number of this measure from 44 to 2.</span>',
+		'test_result':0,
 		'checkfields':{
 			'sos_id':'',
 			'ag_id':'',
@@ -88,16 +88,8 @@ TestCases = [
 	}
 ]
 
-
-def EvaluateTestCase(test_pack):
-	test = test_pack["test"]
-	content = test_pack["content"]
-	checkfields = test_pack["checkfields"]
-	data = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
-	prop = data.find("p",{"id":True})
-
-	## CODE TO TEST
-
+#Code to test
+def test_qualified_initiatives(data):
 	#Set defaults
 	ag_id=""
 	id_note=""
@@ -121,6 +113,7 @@ def EvaluateTestCase(test_pack):
 	fiscal_impact_link=""
 	prop_num=""
 
+	prop = data.find("p",{"id":True})
 
 	#For all inits/referrals before prop_num assigned...
 	if not re.search("prop",prop["id"]):
@@ -224,24 +217,119 @@ def EvaluateTestCase(test_pack):
 			initiative_title = prop_title_block[1].strip() + " \xe2\x80\x94 " + initiative_title
 	#logging.debug(prop_num + " | " + ag_id + " | " + sos_id)
 
+	results = {"ag_id":ag_id,"id_note":id_note,"sos_id":sos_id,"initiative_title":initiative_title,"summary":summary,"full_text_link":full_text_link,"proponent":proponent,"email_adr":email_adr,"phone_num":phone_num,"date_sum":date_sum,"init_status":init_status,"date_qualified":date_qualified,"date_failed":date_failed,"date_sample_due":date_sample_due,"date_raw_count_due":date_raw_count_due,"date_circulation_deadline":date_circulation_deadline,"sigs_req":sigs_req,"date_sample_update":date_sample_update,"sig_count_link":sig_count_link,"fiscal_impact_link":fiscal_impact_link,"prop_num":prop_num}
+	return results
 
 
 
 
-	## TESTS
-	logging.debug("Running tests for " + test + "...")
-	logging.debug(prop)
-	test_status = 1
-	#logging.debug("Locals function returned " + testval + " for date_sum")
-	for key, value in checkfields.iteritems():
-		if checkfields[key] != locals()[key]:
-			logging.debug(key + " should equal " + str(value) + " but instead is " + str(locals()[key]))
-			test_status = 0
-	if test_status == 1:
-		logging.debug("Passed all tests for " + test + ".")
+## TEST SUITE FOR INITIATIVES PENDING ATTORNEY GENERAL REVIEW (http://www.sos.ca.gov/elections/ballot-measures/attorney-general-information.htm)
+
+#Test cases
+PendingAGInitiativeTestSuite = [
+	{'test':'PendingAGTestCase',
+		'content':'<table class="common-nonvis-tbl-border" summary="A list of Initiatives Pending at the Attorney General\'s Office."><tr><th class="text-align-center" scope="col">Attorney General<br />Tracking Number<br />and Approximate Date<br />Title and Summary<br />will be issued to<br />Secretary of State</th><th class="text-align-center" scope="col">Subject</th><th class="text-align-center" scope="col">Proponent(s)</th></tr><tr><tr><tr><tr><td class="text-align-center"><a name="14-0010"></a>14-0010 - 10/29/14</td><td class="text-align-center"><a href="https://oag.ca.gov/system/files/initiatives/pdfs/14-0010%20%2814-0010%20%2814-0010%20%28No%20Public%20Resources%20Used%20to%20Deport%20California%20Residents%29%29%29.pdf?">"Protect Our Family"</a></td><td>Barton Gilbert</td></tr></table>',
+		'test_result':0,
+		'checkfields':{
+			'ag_id':'14-0010',
+			'proponent':'Barton Gilbert',
+			'date_sum_estimate':'10/29/14',
+			'full_text_link':'https://oag.ca.gov/system/files/initiatives/pdfs/14-0010%20%2814-0010%20%2814-0010%20%28No%20Public%20Resources%20Used%20to%20Deport%20California%20Residents%29%29%29.pdf?',
+			'initiative_title':'Protect Our Family'}
+	},
+	{'test':'NonePendingAGTestCase',
+		'content':'<p class="medium-text-bold text-align-center">There are currently no initiatives pending a title and summary.</p>',
+		'test_result':0,
+		'checkfields':{
+			'ag_id':''
+		}
+	}
+]
+
+#Code to test
+def test_pendingAG_initiatives(data):
+	#Set defaults
+	ag_id = ""
+	proponent = ""
+	date_sum_estimate = ""
+	full_text_link = ""
+	initiative_title = ""
+
+	table = data.findAll("table")
+	#If more than one table exists, we have a problem...
+	if len(table) > 1:
+		logging.debug("Problem: More than one table listed. Please double-check SoS site.")
+
+	#If table doesn't exist...
+	elif not table:
+		logging.debug("No new initiatives pending Attorney General review.")
+
+	#If table exists, scrape initiatives...
 	else:
-		logging.debug("One or all of the tests for " + test + " failed.")
-	logging.debug("\n\n")
+		inits = []
+		rows = table[0].findAll("tr")
+		for r in rows:
+			if r.find("td"):
+				inits.append(r)
 
-for t in range(len(TestCases)):
-	EvaluateTestCase(TestCases[t])
+		#Process initiative data
+		for i in inits:
+			init_data = i.findAll("td")
+			ag_id_block = init_data[0].text.encode("utf-8").split()
+			ag_id = ag_id_block[0].strip()
+			date_sum_estimate = ag_id_block[len(ag_id_block)-1].strip()			
+			full_text_link = init_data[1].a["href"]
+			initiative_title = init_data[1].text.encode("utf-8").strip().replace('"','')
+			proponent = init_data[2].text.encode("utf-8").strip()
+
+	results = {"ag_id":ag_id,"proponent":proponent,"date_sum_estimate":date_sum_estimate,"full_text_link":full_text_link,"initiative_title":initiative_title}
+	return results
+
+
+#IDENTIFY TEST SUITES TO RUN
+def RunTests():
+	EvaluateTestCases(QualifiedInitiativeTestSuite,"QualifiedInitiativeTestSuite")
+	EvaluateTestCases(PendingAGInitiativeTestSuite,"PendingAGInitiativeTestSuite")
+
+def EvaluateTestCases(TestSuite,TestSuiteName):
+	logging.debug("Running tests for " + TestSuiteName + "...\n\n")
+	
+	for t in range(len(TestSuite)):
+		TestCase = TestSuite[t]
+		test = TestCase["test"]
+		content = TestCase["content"]
+		test_result = TestCase["test_result"]
+		checkfields = TestCase["checkfields"]
+		data = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
+		
+		logging.debug("Checking " + test + "...")
+
+		## SET UP CODE TO TEST BASED ON TEST SUITE
+		if TestSuite == QualifiedInitiativeTestSuite:
+			results = test_qualified_initiatives(data)
+
+		if TestSuite == PendingAGInitiativeTestSuite:
+			results = test_pendingAG_initiatives(data)
+
+
+		## RETURN TEST RESULTS
+		check_status = 1
+		for key, value in checkfields.iteritems():
+			if checkfields[key] != results[key]:
+				logging.debug(key + " should equal " + str(value) + " but instead is " + str(results[key]))
+				check_status = 0
+		if check_status == 1:
+			TestCase["test_result"] = 1
+			logging.debug("Passed all checks for " + test + ".")
+		else:
+			logging.debug(test + " failed.\nHere is the content that was checked:")
+			logging.debug(content)
+		logging.debug("\n\n")
+
+	tests_passed = 0
+	total_tests = len(TestSuite)
+	for TestCase in TestSuite:
+		tests_passed += TestCase["test_result"]
+	logging.debug(str(tests_passed) + " of " + str(total_tests) + " tests passed for " + TestSuiteName + ".\n\n")
+
+RunTests()
