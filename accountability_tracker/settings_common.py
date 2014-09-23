@@ -96,6 +96,7 @@ INSTALLED_APPS = (
 
     # installed applications
     'ballot_initiatives',
+    'commander',
 
     # api & tools
     'south',
