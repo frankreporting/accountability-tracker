@@ -96,11 +96,12 @@ INSTALLED_APPS = (
 
     # installed applications
     'ballot_initiatives',
-    'commander',
 
     # api & tools
     'south',
-    #'django_admin_bootstrapped',
+    'django_admin_bootstrapped',
+    'commander',
+
     #'massadmin',
     'debug_toolbar',
     #'tastypie',
