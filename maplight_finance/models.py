@@ -15,8 +15,23 @@ logging.basicConfig(
 )
 
 # Create your models here.
-class InitiativeContributor(models.Model):
+
+class Initiative(models.Model):
     initiative_identifier = models.CharField("Initiative", max_length=500, null=True, blank=True)
+    initiative_slug = models.SlugField("Initiative Slug", max_length=140, null=True, blank=True)
+    description = models.CharField("Initiative description", max_length=500, null=True, blank=True)
+    document_url = models.URLField("URL to analysis", max_length=1024, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.initiative_identifier
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("detail", [self.initiative_slug])
+
+class InitiativeContributor(models.Model):
+    initiative_identifier = models.ForeignKey(Initiative, null=True, blank=True, related_name="initiative_initiative_identifier")
+    #initiative_identifier = models.CharField("Initiative", max_length=500, null=True, blank=True)
     stance = models.CharField("Stance on Initiative", max_length=500, null=True, blank=True)
     transaction_name = models.CharField("Transaction Name", max_length=500, null=True, blank=True)
     committee_id = models.CharField(max_length=500, null=True, blank=True)
@@ -38,11 +53,8 @@ class InitiativeContributor(models.Model):
     created_date = models.DateTimeField("date created", default=datetime.datetime.now)
 
     def __unicode__(self):
-        return self.initiative_identifier
+        return self.transaction_number
 
-#class InitiativeAnalysis(models.Model):
-    #fire_name = models.ForeignKey(InitiativeContributors, null=True, blank=True, related_name="initiative_identifier")
-    #document_url = models.URLField("URL to analysis", max_length=1024, null=True, blank=True)
-
-    #def __unicode__(self):
-        #return self.update_text
+    #@models.permalink
+    #def get_absolute_url(self):
+        #return ("what-detail", [self.id,])

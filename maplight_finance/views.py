@@ -1,7 +1,6 @@
-# coding=utf-8
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render_to_response, render
+from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest, Http404
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_sameorigin
 from django.core.urlresolvers import reverse
@@ -9,10 +8,10 @@ from django.core import serializers
 from django.template import RequestContext, Context, loader
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import View
+from django.views.generic import View, ListView, DetailView
 from django.db.models import Q, Avg, Max, Min, Sum, Count
-from maplight_finance.models import InitiativeContributor
-#from bakery.views import BuildableListView, BuildableDetailView
+from maplight_finance.models import Initiative, InitiativeContributor
+from bakery.views import BuildableListView, BuildableDetailView
 import logging
 
 #logger = logging.getLogger("root")
@@ -27,16 +26,11 @@ logger = logging.getLogger("accountability_tracker")
 @xframe_options_sameorigin
 def index(request):
     contributions = InitiativeContributor.objects.all()
-
     supporting_contributions = contributions.filter(stance="Support")
     opposing_contributions = contributions.filter(stance="Oppose")
-
-
-
     total_sum = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
     supporting_sum = supporting_contributions.values("initiative_identifier").annotate(total=Sum("amount"))
     opposing_sum = opposing_contributions.values("initiative_identifier").annotate(total=Sum("amount"))
-
     return render_to_response("index.html", {
         "total_sum": total_sum,
         "supporting_sum": supporting_sum,
@@ -44,16 +38,38 @@ def index(request):
     })
 
 
-#class DummyListView(View):
-    """
-    Generates a page that will feature a list linking to detail pages about
-    each object in the queryset.
-    """
-
+class DummyListView(BuildableListView):
+    """ """
+    model = Initiative
     #queryset = InitiativeContributor.objects.values("initiative_identifier").annotate(total=Sum("amount"))
-    #template_name = "index.html"
+    template_name = "index.html"
 
-    #def display(self, request):
-        #return render(request, self.template_name, {
-            #"data": queryset
-        #})
+
+class DummyDetailView(BuildableDetailView):
+    """ """
+    model = Initiative
+    template_name = "detail.html"
+    slug_field = "initiative_slug"
+
+    def get_object(self):
+        object = super(DummyDetailView, self).get_object()
+        return object
+
+    def get_context_data(self, **kwargs):
+        context = super(DummyDetailView, self).get_context_data(**kwargs)
+        initiative_id = self.object.id
+        contributions = InitiativeContributor.objects.filter(initiative_identifier_id = initiative_id)
+        total_contributions = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
+        total_support = contributions.filter(stance="Support").values("initiative_identifier").annotate(total=Sum("amount"))
+        total_opposition = contributions.filter(stance="Oppose").values("initiative_identifier").annotate(total=Sum("amount"))
+        supporting_contributions = contributions.filter(stance="Support").order_by('-amount')[0:5]
+        opposing_contributions = contributions.filter(stance="Oppose").order_by('-amount')[0:5]
+        context["total_contributions"] = total_contributions
+        context["total_contributions"] = context["total_contributions"][0]["total"]
+        context["total_support"] = total_support
+        context["total_support"] = context["total_support"][0]["total"]
+        context["total_opposition"] = total_opposition
+        context["total_opposition"] = context["total_opposition"][0]["total"]
+        context["supporting_contributions"] = supporting_contributions
+        context["opposing_contributions"] = opposing_contributions
+        return context

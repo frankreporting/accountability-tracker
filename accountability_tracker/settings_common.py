@@ -80,7 +80,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
@@ -107,15 +107,15 @@ INSTALLED_APPS = (
     # installed applications
     'calaccess_raw',
     'maplight_finance',
-    #'bakery',
+    'bakery',
     #'ballot_initiatives',
     #'commander',
 
     # api & tools
     #'django_admin_bootstrapped',
     #'massadmin',
-    'debug_toolbar',
-    #'tastypie',
+    #'debug_toolbar',
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -158,9 +158,12 @@ LOGGING = {
         'accountability_tracker': {
             'handlers': ['console'],
             'level': 'DEBUG',
+            'propagate': False,
         },
     }
 }
+
+TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
 
 AUTH_PROFILE_MODULE = 'create_user.UserProfile'
 

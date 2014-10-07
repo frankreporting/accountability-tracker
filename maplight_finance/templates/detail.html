@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% load template_tags %}
+
+{% block extended_page_content %}
+
+    <h2>{{ object.initiative_identifier }}</h2>
+
+    <h3>Total: {{ total_contributions | currency }}</h3>
+
+    <h3>Support total: {{ total_support | currency }}</h3>
+    {% for support in supporting_contributions %}
+        <li>{{ support.amount | currency }}</li>
+    {% endfor %}
+
+    <h3>Opposition total: {{ total_opposition | currency }}</h3>
+    {% for opposing in opposing_contributions %}
+        <li>{{ opposing.amount | currency }}</li>
+    {% endfor %}
+
+{% endblock %}

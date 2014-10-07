@@ -3,6 +3,12 @@
 {% block extended_page_content %}
     <h1>So I think this thing works, but I'm not entirely sure anymore</h1>
 
+    <ul>
+    {% for obj in object_list %}
+        <li><a href="{{ obj.get_absolute_url }}">{{ obj.initiative_identifier }}</a></li>
+    {% endfor %}
+    </ul>
+
     <h3>Total</h3>
     {% for contribution in total_sum %}
         <p>{{ contribution.initiative_identifier }}: {{ contribution.total }}</p>

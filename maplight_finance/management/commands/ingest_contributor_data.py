@@ -3,7 +3,7 @@ from django.utils.encoding import smart_str, smart_unicode
 from django.utils.timezone import utc, localtime
 from django.core.mail import send_mail, mail_admins, send_mass_mail, EmailMessage
 from django.conf import settings
-from maplight_finance.models import InitiativeContributor
+from maplight_finance.models import Initiative, InitiativeContributor
 import os
 import csv
 import logging
@@ -40,10 +40,12 @@ def download_map_light_csv(list_of_urls):
         file.next()
         for column in file:
             try:
+                transaction = evaluate_transaction_number(column[15], column[0], column[1], column[2], column[11])
+                initiative_instance = Initiative.objects.get(initiative_identifier=str(column[0]))
                 obj, created = InitiativeContributor.objects.get_or_create(
-                    transaction_number = str(column[15]),
+                    transaction_number = transaction,
                     defaults={
-                        "initiative_identifier": str(column[0]),
+                        "initiative_identifier_id": initiative_instance.id,
                         "stance": str(column[1]),
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
@@ -58,13 +60,16 @@ def download_map_light_csv(list_of_urls):
                         "amount": float(column[12]),
                         "transaction_date": convert_date_to_nicey_format(column[13]),
                         "filed_date": convert_date_to_nicey_format(column[14]),
-                        "transaction_number": str(column[15]),
+                        "transaction_number": transaction,
                         "is_individual": str(column[16]),
                         "donor_type": str(column[17]),
                         "industry": str(column[18])
                     }
                 )
-                logger.debug("New record created for %s", (str(column[15])))
+                if not created:
+                    logger.debug("Record exists")
+                else:
+                    logger.debug("New record created for %s" % (transaction))
             except Exception, exception:
                 logger.error(exception)
                 break
@@ -95,10 +100,12 @@ def import_csv_to_model(csv_file):
         file.next()
         for column in file:
             try:
+                transaction = evaluate_transaction_number(column[15], column[0], column[1], column[2], column[11])
+                initiative_instance = Initiative.objects.get(initiative_identifier=str(column[0]))
                 obj, created = InitiativeContributor.objects.get_or_create(
-                    transaction_number = str(column[15]),
+                    transaction_number = transaction,
                     defaults={
-                        "initiative_identifier": str(column[0]),
+                        "initiative_identifier_id": initiative_instance.id,
                         "stance": str(column[1]),
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
@@ -113,16 +120,32 @@ def import_csv_to_model(csv_file):
                         "amount": float(column[12]),
                         "transaction_date": convert_date_to_nicey_format(column[13]),
                         "filed_date": convert_date_to_nicey_format(column[14]),
-                        "transaction_number": str(column[15]),
+                        "transaction_number": transaction,
                         "is_individual": str(column[16]),
                         "donor_type": str(column[17]),
                         "industry": str(column[18])
                     }
                 )
-                logger.debug("New record created for %s", (str(column[15])))
+                if not created:
+                    logger.debug("Record exists")
+                else:
+                    logger.debug("New record created for %s" % (transaction))
             except Exception, exception:
                 logger.error(exception)
     imported_file.close()
+
+
+def evaluate_transaction_number(transaction_number, prop_number, stance, transaction_name, payment_type):
+    """ fix if a contribution has no transaction number """
+    if transaction_number == "":
+        prop_number = prop_number.lower().replace(". ", "-")
+        stance = stance.lower()
+        transaction_name = transaction_name.lower().replace(" ", "-")
+        payment_type = payment_type.lower()
+        output = "%s-%s-%s-%s" % (prop_number, stance, transaction_name, payment_type)
+    else:
+        output = transaction_number
+    return output
 
 
 def convert_date_to_nicey_format(date):
@@ -139,5 +162,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         download_map_light_csv(map_light_csvs)
         #request_map_light_api(settings.MAP_LIGHT_API_KEY)
-        #import_csv_to_model("/Users/KellerUser/Desktop/california-2014-11-prop-45-funding_20140924.csv")
+        #import_csv_to_model("/Users/ckeller/Desktop/california-2014-11-prop-1-funding_20140924.csv")
         self.stdout.write("\nScraping finished at %s\n" % str(datetime.datetime.now()))
