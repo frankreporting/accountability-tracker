@@ -7,7 +7,7 @@ import logging
 from fabric.operations import prompt
 from fabric.api import local, cd, run, env
 from fabric.contrib.console import confirm
-from fabric.context_managers import cd
+from fabric.context_managers import lcd
 from fabric.colors import green
 
 env.use_ssh_config = True
@@ -19,29 +19,6 @@ logging.basicConfig(
 )
 
 # development functions
-
-def build_commit(warn_only=True):
-    """Build a commit"""
-    local_branch = prompt("checkout branch: ")
-    rebase_branch = prompt("rebase branch: ")
-
-    local('git checkout %s' % local_branch)
-    local('git add .')
-    local('git add -u .')
-
-    message  = prompt("commit message: ")
-
-    local('git commit -m "%s"' % message)
-    local('git checkout %s' % rebase_branch)
-    local('git pull origin %s' % rebase_branch)
-    local('git checkout %s' % local_branch)
-    local('git rebase %s' % rebase_branch)
-    local('git checkout %s' % rebase_branch)
-    local('git merge %s' % local_branch)
-    local('git push origin %s' % rebase_branch)
-    local('git checkout %s' % local_branch)
-
-
 def run():
     local("python manage.py runserver")
 
@@ -61,9 +38,24 @@ def build():
 def buildserver():
     local("python manage.py buildserver")
 
+def move():
+    local("python manage.py move_baked_files")
+
+def commit(message='updates'):
+    with lcd("/Volumes/one_tb_hd/_programming/2kpcc/static-projects/test/keller"):
+        try:
+            #local("ls")
+            local("git add initiatives-tracker .")
+            local("git st")
+            local('git commit -m "' + message + '"')
+        except:
+            print(green("Nothing new to commit.", bold=False))
+        local("git push")
+
 def deploy():
     build()
     local("python manage.py move_baked_files")
+    write_commit_for_deploy()
 
 def __env_cmd(cmd):
     return env.bin_root + cmd

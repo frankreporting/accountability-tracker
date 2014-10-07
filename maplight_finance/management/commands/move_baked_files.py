@@ -15,7 +15,6 @@ import datetime
 
 logger = logging.getLogger("accountability_tracker")
 
-
 def move_my_files(src, dest):
     """  """
     shutil.rmtree(dest)
