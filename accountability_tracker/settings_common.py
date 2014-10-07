@@ -8,7 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -106,6 +105,9 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # installed applications
+    'calaccess_raw',
+    'maplight_finance',
+    #'bakery',
     #'ballot_initiatives',
     #'commander',
 
@@ -121,9 +123,12 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
 LOGGING = {
     'version': 1,
+
     'disable_existing_loggers': True,
+
     'formatters': {
         'verbose': {
             'format' : "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
@@ -133,21 +138,24 @@ LOGGING = {
             'format': "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s"
         },
     },
+
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'simple'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'mysite.log',
-            'formatter': 'verbose'
-        },
+
+        #'file': {
+            #'level': 'DEBUG',
+            #'class': 'logging.FileHandler',
+            #'filename': 'mysite.log',
+            #'formatter': 'verbose'
+        #},
     },
+
     'loggers': {
-        'calfire_tracker': {
+        'accountability_tracker': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },

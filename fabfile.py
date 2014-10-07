@@ -29,5 +29,8 @@ def lmigrate():
     # production function to manually run the scraper in local environment
     local("python manage.py migrate")
 
+def ldata():
+    local("python manage.py ingest_contributor_data")
+
 def __env_cmd(cmd):
     return env.bin_root + cmd
