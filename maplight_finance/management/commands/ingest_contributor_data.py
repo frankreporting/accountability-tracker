@@ -137,7 +137,7 @@ def convert_date_to_nicey_format(date):
 class Command(BaseCommand):
     help = "Imports csv to django model"
     def handle(self, *args, **options):
-        #download_map_light_csv(map_light_csvs)
+        download_map_light_csv(map_light_csvs)
         #request_map_light_api(settings.MAP_LIGHT_API_KEY)
-        import_csv_to_model("/Users/KellerUser/Desktop/california-2014-11-prop-45-funding_20140924.csv")
+        #import_csv_to_model("/Users/KellerUser/Desktop/california-2014-11-prop-45-funding_20140924.csv")
         self.stdout.write("\nScraping finished at %s\n" % str(datetime.datetime.now()))
