@@ -38,25 +38,25 @@ def index(request):
     })
 
 
-class DummyListView(BuildableListView):
+class InitialListView(BuildableListView):
     """ """
     model = Initiative
     #queryset = InitiativeContributor.objects.values("initiative_identifier").annotate(total=Sum("amount"))
     template_name = "index.html"
 
 
-class DummyDetailView(BuildableDetailView):
+class InitialDetailView(BuildableDetailView):
     """ """
     model = Initiative
     template_name = "detail.html"
     slug_field = "initiative_slug"
 
     def get_object(self):
-        object = super(DummyDetailView, self).get_object()
+        object = super(InitialDetailView, self).get_object()
         return object
 
     def get_context_data(self, **kwargs):
-        context = super(DummyDetailView, self).get_context_data(**kwargs)
+        context = super(InitialDetailView, self).get_context_data(**kwargs)
         initiative_id = self.object.id
         contributions = InitiativeContributor.objects.filter(initiative_identifier_id = initiative_id)
         total_contributions = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
