@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
-{% block extended_page_content %}
+{% block page_content %}
+
     <h1>So I think this thing works, but I'm not entirely sure anymore</h1>
 
     <ul>
@@ -23,6 +24,5 @@
     {% for contribution in opposing_sum %}
         <p>{{ contribution.initiative_identifier }}: {{ contribution.total }}</p>
     {% endfor %}
-
 
 {% endblock %}

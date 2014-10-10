@@ -4,6 +4,7 @@ import settings_development
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
+from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.contrib import admin
 

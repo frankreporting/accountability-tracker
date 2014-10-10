@@ -33,7 +33,7 @@ def data():
     local("python manage.py ingest_contributor_data")
 
 def build():
-    local("python manage.py build --skip-static")
+    local("python manage.py build")
 
 def buildserver():
     local("python manage.py buildserver")
@@ -45,17 +45,17 @@ def commit(message='updates'):
     with lcd("/Volumes/one_tb_hd/_programming/2kpcc/static-projects/test/keller"):
         try:
             #local("ls")
-            local("git add initiatives-tracker .")
+            #local("git add initiatives-tracker .")
             local("git st")
-            local('git commit -m "' + message + '"')
+            #local('git commit -m "' + message + '"')
         except:
             print(green("Nothing new to commit.", bold=False))
-        local("git push")
+        #local("git push")
 
 def deploy():
     build()
     local("python manage.py move_baked_files")
-    write_commit_for_deploy()
+    commit()
 
 def __env_cmd(cmd):
     return env.bin_root + cmd

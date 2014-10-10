@@ -60,10 +60,36 @@ class InitialDetailView(BuildableDetailView):
         initiative_id = self.object.id
         contributions = InitiativeContributor.objects.filter(initiative_identifier_id = initiative_id)
         total_contributions = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
+
+
         total_support = contributions.filter(stance="Support").values("initiative_identifier").annotate(total=Sum("amount"))
         total_opposition = contributions.filter(stance="Oppose").values("initiative_identifier").annotate(total=Sum("amount"))
+
+
+
+
         supporting_contributions = contributions.filter(stance="Support").order_by('-amount')[0:5]
         opposing_contributions = contributions.filter(stance="Oppose").order_by('-amount')[0:5]
+
+        test = contributions.filter(stance="Support").values("name").annotate()
+        test = test.order_by('-amount')[0:5]
+        test = test
+
+        #opposing_contributions = contributions.filter(stance="Oppose").values("name").annotate(total=Sum("amount"))
+
+        #logger.debug(test)
+
+
+
+
+
+
+        count_total_supporting_contributions = contributions.filter(stance="Support").count()
+        count_total_opposing_contributions = contributions.filter(stance="Oppose").count()
+
+
+
+
         context["total_contributions"] = total_contributions
         context["total_contributions"] = context["total_contributions"][0]["total"]
         context["total_support"] = total_support
@@ -72,4 +98,6 @@ class InitialDetailView(BuildableDetailView):
         context["total_opposition"] = context["total_opposition"][0]["total"]
         context["supporting_contributions"] = supporting_contributions
         context["opposing_contributions"] = opposing_contributions
+        context["count_supporting"] = count_total_supporting_contributions
+        context["count_opposing"] = count_total_opposing_contributions
         return context

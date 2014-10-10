@@ -1,21 +1,89 @@
 {% extends "base.html" %}
 
 {% load template_tags %}
+{% load staticfiles %}
 
-{% block extended_page_content %}
+{% block contributions_chart_config %}
+    <script>
+        var chartConfig = {% contribs_as_percent total_support total_opposition %};
+    </script>
+{% endblock %}
 
-    <h2>{{ object.initiative_identifier }}</h2>
-
-    <h3>Total: {{ total_contributions | currency }}</h3>
-
-    <h3>Support total: {{ total_support | currency }}</h3>
-    {% for support in supporting_contributions %}
-        <li>{{ support.amount | currency }}</li>
-    {% endfor %}
-
-    <h3>Opposition total: {{ total_opposition | currency }}</h3>
-    {% for opposing in opposing_contributions %}
-        <li>{{ opposing.amount | currency }}</li>
-    {% endfor %}
-
+{% block page_content %}
+    <div class="ledger">
+        <div class="contributors clearfix">
+            <div class="support">
+                <header>
+                    <mark>
+                        <h1 class="align-left"><span class="support-accent">For</span> {{ object.initiative_identifier }}</h1>
+                    </mark>
+                </header>
+                <section class="display">
+                    <mark>
+                        <h1 class="align-left">Top five contributors</h1>
+                    </mark>
+                    <ol>
+                        {% for support in supporting_contributions %}
+                            <li>
+                                <dl>
+                                    <dt>{{ support.name }}</dt>
+                                    <dd>{{ support.amount | currency }}</dd>
+                                </dl>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                    <mark>
+                        <h3 class="align-left">Total contributors: {{ count_supporting }}</h3>
+                    </mark>
+                </section>
+            </div>
+            <div class="oppose">
+                <header class="prologue">
+                    <mark>
+                        <h1 class="align-right">{{ object.initiative_identifier }} <span class="oppose-accent">Against</span></h1>
+                    </mark>
+                </header>
+                <section class="display">
+                    <mark>
+                        <h1 class="align-right">Top five contributors</h1>
+                    </mark>
+                    <ol>
+                        {% for oppose in opposing_contributions %}
+                            <li>
+                                <dl>
+                                    <dt>{{ oppose.amount | currency }}</dt>
+                                    <dd>{{ oppose.name }}</dd>
+                                </dl>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                    <mark>
+                        <h3 class="align-right">Total contributors: {{ count_opposing }}</h3>
+                    </mark>
+                </section>
+            </div>
+        </div>
+        <aside class="totals">
+            <div class="support">
+                <dl class="align-left">
+                    <dt>Amount total</dt>
+                    <dd>{{ total_support | currency }}</dd>
+                </dl>
+            </div>
+            <div class="chart-container"></div>
+            <div class="oppose">
+                <dl class="align-right">
+                    <dt>Amount total</dt>
+                    <dd>{{ total_opposition | currency }}</dd>
+                </dl>
+            </div>
+            <!--
+            <footer>
+                <p>Data Source <span>MapLight</span></p>
+                <p>Design &amp; Code <span>89.3 KPCC</span></p>
+                <p><img src="{% static 'images/maplight_logo_partner.png' %}" /></p>
+            </footer>
+            -->
+        </aside>
+    </div>
 {% endblock %}
