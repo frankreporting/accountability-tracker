@@ -22,7 +22,7 @@ from datetime import tzinfo
 logger = logging.getLogger("accountability_tracker")
 
 
-map_light_csvs = [
+local_testing_map_light_csvs = [
     "http://votersedge.org/files/ballot-measures/funding-csv/california-2014-11-prop-1-funding_20140924.csv",
     "http://votersedge.org/files/ballot-measures/funding-csv/california-2014-11-prop-2-funding_20140924.csv",
     "http://votersedge.org/files/ballot-measures/funding-csv/california-2014-11-prop-45-funding_20140924.csv",
@@ -30,6 +30,30 @@ map_light_csvs = [
     "http://votersedge.org/files/ballot-measures/funding-csv/california-2014-11-prop-47-funding_20140924.csv",
     "http://votersedge.org/files/ballot-measures/funding-csv/california-2014-11-prop-48-funding_20140924.csv"
 ]
+
+
+def request_map_light_api(MAP_LIGHT_API_KEY):
+    """ make a request to the Map Light API and return JSON data """
+    csv_prefix = "http://votersedge.org/files/ballot-measures/funding-csv/"
+    url_prefix = "http://votersedge.org/services_open_api/cvg.contest_v1.json?"
+    url_api_key = "apikey=%s" % (MAP_LIGHT_API_KEY)
+    url_query = "&contest=M193&date=2014-11-02"
+    url_request = "%s%s%s" % (url_prefix, url_api_key, url_query)
+    map_light_api_request = requests.get(
+        url_request, headers=settings.MAP_LIGHT_API_HEADERS
+    )
+    if map_light_api_request.status_code == 200:
+        logger.debug("processing json")
+        api_data = map_light_api_request.json()
+        api_data = api_data.items()
+        list_of_maplight_csvs = []
+        for data in api_data:
+            csv_source = data[1]["funding_csv_file"]
+            csv_request = csv_prefix + csv_source
+            list_of_maplight_csvs.append(csv_request)
+        download_map_light_csv(list_of_maplight_csvs)
+    else:
+        pass
 
 
 def download_map_light_csv(list_of_urls):
@@ -73,24 +97,6 @@ def download_map_light_csv(list_of_urls):
             except Exception, exception:
                 logger.error(exception)
                 break
-
-
-def request_map_light_api(MAP_LIGHT_API_KEY):
-    """ make a request to the Map Light API and return JSON data """
-    csv_prefix = "http://votersedge.org/files/ballot-measures/funding-csv/"
-    url_prefix = "http://votersedge.org/services_open_api/cvg.contest_v1.json?"
-    url_api_key = "apikey=%s" % (MAP_LIGHT_API_KEY)
-    url_query = "&contest=M193&date=2014-11-02"
-    url_request = "%s%s%s" % (url_prefix, url_api_key, url_query)
-    map_light_api_request = requests.get(
-        url_request, headers=settings.MAP_LIGHT_API_HEADERS
-    )
-    api_data = map_light_api_request.json()
-    api_data = api_data.items()
-    for data in api_data:
-        csv_source = data[1]["funding_csv_file"]
-        csv_request = csv_prefix + csv_source
-        logger.debug(csv_request)
 
 
 def import_csv_to_model(csv_file):
@@ -160,7 +166,7 @@ def convert_date_to_nicey_format(date):
 class Command(BaseCommand):
     help = "Imports csv to django model"
     def handle(self, *args, **options):
-        download_map_light_csv(map_light_csvs)
-        #request_map_light_api(settings.MAP_LIGHT_API_KEY)
+        request_map_light_api(settings.MAP_LIGHT_API_KEY)
+        #download_map_light_csv(local_testing_map_light_csvs)
         #import_csv_to_model("/Users/ckeller/Desktop/california-2014-11-prop-1-funding_20140924.csv")
         self.stdout.write("\nScraping finished at %s\n" % str(datetime.datetime.now()))
