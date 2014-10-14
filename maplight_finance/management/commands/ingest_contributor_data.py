@@ -160,7 +160,7 @@ def evaluate_transaction_number(transaction_number, prop_number, stance, transac
 def evaluate(name):
     """ if name is empty string, give it a name """
     if name == "":
-        name = "Summary"
+        name = "Unitemized contributions less than 100 dollars"
     else:
         pass
     return name
@@ -169,7 +169,7 @@ def evaluate(name):
 def create_name_slug_from(name):
     """ strip punctuation and lowercase donor name to create a common format """
     if name == "":
-        name = "Summary"
+        name = "Unitemized contributions less than 100 dollars"
     output = str(name).replace("&", "and")
     output = output.translate(None, string.punctuation)
     output = output.lower().replace(" ", "-")
