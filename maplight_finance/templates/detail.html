@@ -25,16 +25,13 @@
                     <ol>
                         {% for support in supporting_contributions %}
                             <li>
-                                <dl>
+                                <dl class="clearfix">
                                     <dt>{{ support.name }}</dt>
                                     <dd>{{ support.amount | currency }}</dd>
                                 </dl>
                             </li>
                         {% endfor %}
                     </ol>
-                    <mark>
-                        <h3 class="align-left">Total contributors: {{ count_supporting }}</h3>
-                    </mark>
                 </section>
             </div>
             <div class="oppose">
@@ -50,40 +47,58 @@
                     <ol>
                         {% for oppose in opposing_contributions %}
                             <li>
-                                <dl>
-                                    <dt>{{ oppose.amount | currency }}</dt>
-                                    <dd>{{ oppose.name }}</dd>
+                                <dl class="clearfix">
+                                    <dt>{{ oppose.name }}</dt>
+                                    <dd>{{ oppose.amount | currency }}</dd>
                                 </dl>
                             </li>
                         {% endfor %}
                     </ol>
-                    <mark>
-                        <h3 class="align-right">Total contributors: {{ count_opposing }}</h3>
-                    </mark>
                 </section>
             </div>
+            <aside class="support-contributor-totals">
+                <h3 class="align-left">Total contributors: {{ count_supporting }}</h3>
+            </aside>
+            <aside class="oppose-contributor-totals">
+                <h3 class="align-right">Total contributors: {{ count_opposing }}</h3>
+            </aside>
         </div>
-        <aside class="totals">
-            <div class="support">
+        <div class="chart-container"></div>
+        <aside class="totals clearfix">
+            <div class="support-total">
                 <dl class="align-left">
                     <dt>Amount total</dt>
                     <dd>{{ total_support | currency }}</dd>
                 </dl>
             </div>
-            <div class="chart-container"></div>
-            <div class="oppose">
+            <div class="oppose-total">
                 <dl class="align-right">
                     <dt>Amount total</dt>
                     <dd>{{ total_opposition | currency }}</dd>
                 </dl>
             </div>
-            <!--
-            <footer>
-                <p>Data Source <span>MapLight</span></p>
-                <p>Design &amp; Code <span>89.3 KPCC</span></p>
-                <p><img src="{% static 'images/maplight_logo_partner.png' %}" /></p>
-            </footer>
-            -->
+            <div class="rule-style"></div>
         </aside>
     </div>
+    <div class="rule-style"></div>
+    <footer class="clearfix">
+        <div class="text">
+            <ol>
+            <li>
+                <dl class="clearfix">
+                    <dt>Data Source</dt>
+                    <dd>MapLight</dd>
+                </dl>
+            </li>
+            <li>
+                <dl>
+                    <dt>Design &amp; Code</dt>
+                    <dd>89.3 KPCC</dd>
+                </dl>
+            </li>
+        </div>
+        <div class="logo">
+            <img src="{% static 'images/maplight_logo_partner.png' %}" />
+        </div>
+    </footer>
 {% endblock %}
