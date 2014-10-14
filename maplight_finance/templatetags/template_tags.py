@@ -40,14 +40,12 @@ def contribs_as_percent(support_dollars, oppose_dollars):
     elif support_percent < oppose_percent:
         start_angle = 90
         end_angle = -90
-
     output = {
         "support_percent": support_percent,
         "oppose_percent": oppose_percent,
         "start_angle": start_angle,
         "end_angle": end_angle
     }
-    logger.debug(output)
     return json.dumps(output)
 
 register.filter(currency)

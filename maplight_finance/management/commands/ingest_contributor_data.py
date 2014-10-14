@@ -74,7 +74,7 @@ def download_map_light_csv(list_of_urls):
                         "stance": str(column[1]),
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
-                        "name": str(column[4]),
+                        "name": evaluate(str(column[4])),
                         "name_slug": create_name_slug_from(column[4]),
                         "employer": str(column[5]),
                         "occupation": str(column[6]),
@@ -117,7 +117,7 @@ def import_csv_to_model(csv_file):
                         "stance": str(column[1]),
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
-                        "name": str(column[4]),
+                        "name": str(column[4]).title(),
                         "name_slug": create_name_slug_from(column[4]),
                         "employer": str(column[5]),
                         "occupation": str(column[6]),
@@ -157,12 +157,22 @@ def evaluate_transaction_number(transaction_number, prop_number, stance, transac
     return output
 
 
+def evaluate(name):
+    """ if name is empty string, give it a name """
+    if name == "":
+        name = "Summary"
+    else:
+        pass
+    return name
+
+
 def create_name_slug_from(name):
-    """ strip punctuation and lowercase donor name """
+    """ strip punctuation and lowercase donor name to create a common format """
+    if name == "":
+        name = "Summary"
     output = str(name).replace("&", "and")
     output = output.translate(None, string.punctuation)
     output = output.lower().replace(" ", "-")
-    logger.debug(output)
     return output
 
 

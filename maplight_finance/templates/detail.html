@@ -26,8 +26,8 @@
                         {% for support in supporting_contributions %}
                             <li>
                                 <dl class="clearfix">
-                                    <dt>{{ support.name }}</dt>
-                                    <dd>{{ support.amount | currency }}</dd>
+                                    <dt>{{ support.name | title }}</dt>
+                                    <dd>{{ support.total | currency }}</dd>
                                 </dl>
                             </li>
                         {% endfor %}
@@ -48,8 +48,8 @@
                         {% for oppose in opposing_contributions %}
                             <li>
                                 <dl class="clearfix">
-                                    <dt>{{ oppose.name }}</dt>
-                                    <dd>{{ oppose.amount | currency }}</dd>
+                                    <dt>{{ oppose.name | title }}</dt>
+                                    <dd>{{ oppose.total | currency }}</dd>
                                 </dl>
                             </li>
                         {% endfor %}
