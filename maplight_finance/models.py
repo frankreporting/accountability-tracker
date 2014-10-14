@@ -36,6 +36,7 @@ class InitiativeContributor(models.Model):
     transaction_name = models.CharField("Transaction Name", max_length=500, null=True, blank=True)
     committee_id = models.CharField(max_length=500, null=True, blank=True)
     name = models.CharField("Contributor's Name", max_length=500, null=True, blank=True)
+    name_slug = models.CharField("Contributor's Name", max_length=500, null=True, blank=True)
     employer = models.CharField("Contributor's Employer", max_length=500, null=True, blank=True)
     occupation = models.CharField("Contributor's Occupation", max_length=500, null=True, blank=True)
     city = models.CharField("Contributor's City", max_length=500, null=True, blank=True)

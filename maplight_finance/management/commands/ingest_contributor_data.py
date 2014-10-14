@@ -11,6 +11,7 @@ import time
 import datetime
 import urllib2
 import requests
+import string
 from datetime import tzinfo
 
 #logger = logging.getLogger("root")
@@ -74,6 +75,7 @@ def download_map_light_csv(list_of_urls):
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
                         "name": str(column[4]),
+                        "name_slug": create_name_slug_from(column[4]),
                         "employer": str(column[5]),
                         "occupation": str(column[6]),
                         "city": str(column[7]),
@@ -116,6 +118,7 @@ def import_csv_to_model(csv_file):
                         "transaction_name": str(column[2]),
                         "committee_id": str(column[3]),
                         "name": str(column[4]),
+                        "name_slug": create_name_slug_from(column[4]),
                         "employer": str(column[5]),
                         "occupation": str(column[6]),
                         "city": str(column[7]),
@@ -151,6 +154,15 @@ def evaluate_transaction_number(transaction_number, prop_number, stance, transac
         output = "%s-%s-%s-%s" % (prop_number, stance, transaction_name, payment_type)
     else:
         output = transaction_number
+    return output
+
+
+def create_name_slug_from(name):
+    """ strip punctuation and lowercase donor name """
+    output = str(name).replace("&", "and")
+    output = output.translate(None, string.punctuation)
+    output = output.lower().replace(" ", "-")
+    logger.debug(output)
     return output
 
 
