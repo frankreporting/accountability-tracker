@@ -59,9 +59,10 @@ settings_production.py
 *.pyc
 *.sqlite
 *.csv
-*.txt
 SCRATCHPAD.md
 tmp/*
 public/static/*
 config/*.yml
 dbsync_setup.rb
+data/*
+accountability_tracker/public/*
