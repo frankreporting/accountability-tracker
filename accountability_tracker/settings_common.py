@@ -104,15 +104,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # installed applications
-<<<<<<< HEAD
-    'ballot_initiatives',
-
-    # api & tools
-    'south',
-    'django_admin_bootstrapped',
-    'commander',
-
-=======
     'calaccess_raw',
     'maplight_finance',
     'bakery',
@@ -121,7 +112,6 @@ INSTALLED_APPS = (
 
     # api & tools
     #'django_admin_bootstrapped',
->>>>>>> FETCH_HEAD
     #'massadmin',
     'tastypie',
 )
