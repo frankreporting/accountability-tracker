@@ -70,7 +70,7 @@ def download_map_light_csv(list_of_urls):
         file.next()
         for column in file:
             try:
-                transaction = evaluate_transaction_number(column[15], column[0], column[1], column[2], column[11])
+                transaction = evaluate_transaction_number(column[7], column[0], column[1], column[15], column[11])
                 initiative_instance = Initiative.objects.get(initiative_identifier=str(column[0]))
                 obj, created = InitiativeContributor.objects.get_or_create(
                     transaction_number = transaction,
@@ -106,60 +106,30 @@ def download_map_light_csv(list_of_urls):
                 logger.error(exception)
                 break
 
-"""
-def import_csv_to_model(csv_file):
-    # obsolete manager to read a csvfile and write data to model
-    with open(csv_file, 'r', buffering=0) as imported_file:
-        file = csv.reader(imported_file, delimiter=',', quoting=csv.QUOTE_ALL)
-        file.next()
-        for column in file:
-            try:
-                transaction = evaluate_transaction_number(column[15], column[0], column[1], column[2], column[11])
-                initiative_instance = Initiative.objects.get(initiative_identifier=str(column[0]))
-                obj, created = InitiativeContributor.objects.get_or_create(
-                    transaction_number = transaction,
-                    defaults={
-                        "initiative_identifier_id": initiative_instance.id,
-                        "stance": str(column[1]),
-                        "transaction_name": str(column[2]),
-                        "committee_id": str(column[3]),
-                        "name": str(column[4]).title(),
-                        "name_slug": create_name_slug_from(column[4]),
-                        "employer": str(column[5]),
-                        "occupation": str(column[6]),
-                        "city": str(column[7]),
-                        "state": str(column[8]),
-                        "zip_code": str(column[9]),
-                        "id_number": int(column[10]),
-                        "payment_type": str(column[11]),
-                        "amount": float(column[12]),
-                        "transaction_date": convert_date_to_nicey_format(column[13]),
-                        "filed_date": convert_date_to_nicey_format(column[14]),
-                        "transaction_number": transaction,
-                        "is_individual": str(column[16]),
-                        "donor_type": str(column[17]),
-                        "industry": str(column[18])
-                    }
-                )
-                if not created:
-                    logger.debug("Record exists")
-                else:
-                    logger.debug("New record created for %s" % (transaction))
-            except Exception, exception:
-                logger.error(exception)
-    imported_file.close()
-"""
 
-def evaluate_transaction_number(transaction_number, prop_number, stance, transaction_name, payment_type):
+def evaluate_transaction_number(city, prop_number, stance, transaction_number, payment_type):
     """ fix if a contribution has no transaction number """
-    if transaction_number == "":
-        prop_number = prop_number.lower().replace(". ", "-")
-        stance = stance.lower()
-        transaction_name = transaction_name.lower().replace(" ", "-")
-        payment_type = payment_type.lower()
-        output = "%s-%s-%s-%s" % (prop_number, stance, transaction_name, payment_type)
+    if prop_number != "":
+        slug_prop_number = prop_number.lower().replace(". ", "-")
     else:
-        output = transaction_number
+        slug_prop_number = "n-a"
+    if city != "":
+        slug_city = city.lower().replace(" ", "-")
+    else:
+        slug_city = "n-a"
+    if stance != "":
+        slug_stance = stance.lower()
+    else:
+        slug_stance = "n-a"
+    if transaction_number != "":
+        slug_transaction_number = transaction_number.lower().replace(" ", "")
+    else:
+        slug_transaction_number = "n-a"
+    if payment_type != "":
+        slug_payment_type = payment_type.lower().replace(" ", "-")
+    else:
+        slug_payment_type = "n-a"
+    output = "%s-%s-%s-%s-%s" % (slug_prop_number, slug_city, slug_stance, slug_transaction_number, slug_payment_type)
     return output
 
 
@@ -197,5 +167,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         request_map_light_api(settings.MAP_LIGHT_API_KEY)
         #download_map_light_csv(local_testing_map_light_csvs)
-        #import_csv_to_model("/Users/ckeller/Desktop/california-2014-11-prop-1-funding_20140924.csv")
         self.stdout.write("\nScraping finished at %s\n" % str(datetime.datetime.now()))
