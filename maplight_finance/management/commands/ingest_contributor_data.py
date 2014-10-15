@@ -49,9 +49,14 @@ def request_map_light_api(MAP_LIGHT_API_KEY):
         api_data = api_data.items()
         list_of_maplight_csvs = []
         for data in api_data:
+            data_as_of_date = data[1]["last_funding_update"]
             csv_source = data[1]["funding_csv_file"]
             csv_request = csv_prefix + csv_source
-            list_of_maplight_csvs.append(csv_request)
+            data_as_of_date = {
+                "csv_request": csv_request,
+                "data_as_of_date": data_as_of_date
+            }
+            list_of_maplight_csvs.append(data_as_of_date)
         download_map_light_csv(list_of_maplight_csvs)
     else:
         pass
@@ -60,7 +65,7 @@ def request_map_light_api(MAP_LIGHT_API_KEY):
 def download_map_light_csv(list_of_urls):
     """ loop through a list of urls, grab the csv file and write each row to a model """
     for url in list_of_urls:
-        response = urllib2.urlopen(url)
+        response = urllib2.urlopen(url["csv_request"])
         file = csv.reader(response, delimiter=',', quoting=csv.QUOTE_ALL)
         file.next()
         for column in file:
@@ -89,7 +94,8 @@ def download_map_light_csv(list_of_urls):
                         "transaction_number": transaction,
                         "is_individual": str(column[16]),
                         "donor_type": str(column[17]),
-                        "industry": str(column[18])
+                        "industry": str(column[18]),
+                        "data_as_of_date": url["data_as_of_date"]
                     }
                 )
                 if not created:
@@ -100,9 +106,9 @@ def download_map_light_csv(list_of_urls):
                 logger.error(exception)
                 break
 
-
+"""
 def import_csv_to_model(csv_file):
-    """ manager to read a csvfile and write data to model """
+    # obsolete manager to read a csvfile and write data to model
     with open(csv_file, 'r', buffering=0) as imported_file:
         file = csv.reader(imported_file, delimiter=',', quoting=csv.QUOTE_ALL)
         file.next()
@@ -142,7 +148,7 @@ def import_csv_to_model(csv_file):
             except Exception, exception:
                 logger.error(exception)
     imported_file.close()
-
+"""
 
 def evaluate_transaction_number(transaction_number, prop_number, stance, transaction_name, payment_type):
     """ fix if a contribution has no transaction number """
@@ -162,7 +168,8 @@ def evaluate(name):
     if name == "":
         name = "Unitemized contributions less than 100 dollars"
     else:
-        pass
+        name_list = name.split("(")
+        name = name_list[0]
     return name
 
 

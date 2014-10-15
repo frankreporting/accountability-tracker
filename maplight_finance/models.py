@@ -51,6 +51,7 @@ class InitiativeContributor(models.Model):
     is_individual = models.CharField(max_length=500, null=True, blank=True)
     donor_type = models.CharField(max_length=500, null=True, blank=True)
     industry = models.CharField(max_length=500, null=True, blank=True)
+    data_as_of_date = models.DateField("Last Maplight Update", null=True, blank=True)
     created_date = models.DateTimeField("date created", default=datetime.datetime.now)
 
     def __unicode__(self):
