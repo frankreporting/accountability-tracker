@@ -44,13 +44,11 @@ def move():
 def commit(message='updates'):
     with lcd("/Volumes/one_tb_hd/_programming/2kpcc/static-projects/test/keller"):
         try:
-            #local("ls")
-            #local("git add initiatives-tracker .")
-            local("git st")
-            #local('git commit -m "' + message + '"')
+            message = raw_input("Enter a git commit message:  ")
+            local("git add -A && git commit -m \"%s\"" % message)
         except:
             print(green("Nothing new to commit.", bold=False))
-        #local("git push")
+        local("git push")
 
 def deploy():
     build()

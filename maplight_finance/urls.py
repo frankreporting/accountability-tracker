@@ -8,15 +8,15 @@ from maplight_finance.views import index, InitialListView, InitialDetailView
 
 urlpatterns = patterns('maplight_finance.views',
 
-    url(
-        regex = r"^initiatives/$",
-        view = InitialListView.as_view(),
-        kwargs = {},
-        name = "index",
-    ),
+    #url(
+        #regex = r"^$",
+        #view = InitialListView.as_view(),
+        #kwargs = {},
+        #name = "index",
+    #),
 
     url(
-        regex = r'initiatives/(?P<slug>[-\w]+)/$',
+        regex = r'(?P<slug>[-\w]+)/$',
         view = InitialDetailView.as_view(),
         kwargs = {},
         name = "detail",

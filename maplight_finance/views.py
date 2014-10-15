@@ -62,8 +62,6 @@ class InitialDetailView(BuildableDetailView):
         total_contributions = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
         total_support = contributions.filter(stance="Support").values("initiative_identifier").annotate(total=Sum("amount"))
         total_opposition = contributions.filter(stance="Oppose").values("initiative_identifier").annotate(total=Sum("amount"))
-        #supporting_contributions = contributions.filter(stance="Support").order_by('-amount')[0:5]
-        #opposing_contributions = contributions.filter(stance="Oppose").order_by('-amount')[0:5]
         supporting_contributions = contributions.filter(stance="Support").values("name_slug", "name").annotate(total=Sum("amount")).order_by('-amount')[0:5]
         opposing_contributions = contributions.filter(stance="Oppose").values("name_slug", "name").annotate(total=Sum("amount")).order_by('-amount')[0:5]
         count_total_supporting_contributions = contributions.filter(stance="Support").count()
