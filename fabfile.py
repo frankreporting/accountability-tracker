@@ -51,6 +51,7 @@ def commit(message='updates'):
         local("git push")
 
 def deploy():
+    data()
     build()
     local("python manage.py move_baked_files")
     commit()

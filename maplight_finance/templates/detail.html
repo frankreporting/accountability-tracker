@@ -26,8 +26,13 @@
                         {% for support in supporting_contributions %}
                             <li>
                                 <dl class="clearfix">
-                                    <dt>{{ support.name | title }}</dt>
-                                    <dd>{{ support.total | currency }}</dd>
+                                    {% if support.total == "0.00" %}
+                                        <dt>No contributions reported</dt>
+                                        <dd></dd>
+                                    {% else %}
+                                        <dt>{{ support.name | title }}</dt>
+                                        <dd>{{ support.total | currency }}</dd>
+                                    {% endif %}
                                 </dl>
                             </li>
                         {% endfor %}
@@ -48,8 +53,13 @@
                         {% for oppose in opposing_contributions %}
                             <li>
                                 <dl class="clearfix">
-                                    <dt>{{ oppose.name | title }}</dt>
-                                    <dd>{{ oppose.total | currency }}</dd>
+                                    {% if oppose.total == 0.00 %}
+                                        <dt>No contributions reported</dt>
+                                        <dd></dd>
+                                    {% else %}
+                                        <dt>{{ oppose.name | title }}</dt>
+                                        <dd>{{ oppose.total | currency }}</dd>
+                                    {% endif %}
                                 </dl>
                             </li>
                         {% endfor %}
