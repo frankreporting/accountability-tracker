@@ -23,8 +23,11 @@ logger = logging.getLogger("accountability_tracker")
 register = Library()
 
 def currency(dollars):
-    dollars = round(float(dollars), 2)
-    return "$%s%s" % (intcomma(int(dollars)), ("%0.2f" % dollars)[-3:])
+    #dollars = round(float(dollars), 2)
+    dollars = round(int(dollars), 2)
+    #return "$%s%s" % (intcomma(int(dollars)), ("%0.2f" % dollars)[-3:])
+    return "$%s" % (intcomma(int(dollars)))
+
 
 @register.simple_tag
 def contribs_as_percent(support_dollars, oppose_dollars):
