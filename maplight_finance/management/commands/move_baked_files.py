@@ -13,11 +13,16 @@ import logging
 from subprocess import Popen, PIPE
 import datetime
 
+
 logger = logging.getLogger("accountability_tracker")
+
 
 def move_my_files(src, dest):
     """  """
-    shutil.rmtree(dest)
+    try:
+        shutil.rmtree(dest)
+    except:
+        pass
 
     try:
         shutil.copytree(src, dest)

@@ -20,6 +20,7 @@
         <meta name="description" content="{% block description %}{% endblock %}" />
         <meta name="keywords" content="{% block keywords %}{% endblock %}" />
         <meta name="author" content="89.3 KPCC" />
+        <!--
         <meta property="og:title" content="{% block og_title %}{% endblock %}" />
         <meta property="og:site_name" content="{% block og_site_name %}{% endblock %}" />
         <meta property="og:type" content="{% block og_type %}{% endblock %}" />
@@ -35,6 +36,7 @@
         <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}"/>
         <meta name="twitter:description" content="{% block twitter_description %}{% endblock %}"/>
         <meta name="twitter:image:src" content="http://projects.scpr.org/static-files/v3-dependencies/images/kpcc-og-twitter-logo.png">
+        -->
         <link rel="shortcut icon" href="http://media.scpr.org/favicon.ico" type="image/x-icon" />
         <link rel="apple-touch-icon" href="http://media.scpr.org/assets/images/icon.png">
         <!-- end meta -->
@@ -78,7 +80,6 @@
         <!-- end scripts -->
 
         <!-- begin chartbeat -->
-        <!--
         <script type="text/javascript">
             var _sf_async_config = { uid: 33583, domain: 'projects.scpr.org', useCanonical:true };
             (function() {
@@ -94,11 +95,9 @@
                 window.onload = (typeof window.onload != 'function') ? loadChartbeat : function() { oldonload(); loadChartbeat(); };
             })();
         </script>
-        -->
         <!-- end chartbeat -->
 
         <!-- begin google analytics -->
-        <!--
         <script type="text/javascript">
             var hostName = 'projects.scpr.org';
             var _gaq = _gaq || [];
@@ -120,11 +119,9 @@
                 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
             })();
         </script>
-        -->
         <!-- end google analytics -->
 
         <!-- begin webtrends stats -->
-        <!--
         <script src="http://media.scpr.org/assets/scripts/webtrends.v2.js"></script>
         <script>
             //<![CDATA[
@@ -144,11 +141,9 @@
         <noscript>
             <div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="http://statse.webtrendslive.com/dcsyqctzwuz5bdsebpmwhwe8w_2p8d/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=9.3.0&amp;WT.dcssip=www.scpr.org"/></div>
         </noscript>
-        -->
         <!-- end webtrends stats -->
 
         <!-- begin comscore stats -->
-        <!--
         <script>
             var _comscore = _comscore || [];
             _comscore.push({ c1: "2", c2: "6035974", c3: "", c4: "" });
@@ -161,7 +156,6 @@
         <noscript>
             <img src="http://b.scorecardresearch.com/p?c1=2&c2=6035974&c3=&c4=&c5=&c6=&c15=&cv=2.0&cj=1" />
         </noscript>
-        -->
         <!-- end comscore stats -->
 
     </body>

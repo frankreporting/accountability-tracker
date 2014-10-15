@@ -52,8 +52,11 @@ def commit(message='updates'):
 
 def deploy():
     data()
+    time.sleep(5)
     build()
+    time.sleep(5)
     local("python manage.py move_baked_files")
+    time.sleep(5)
     commit()
 
 def __env_cmd(cmd):

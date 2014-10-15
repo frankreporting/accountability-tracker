@@ -3,6 +3,14 @@
 {% load template_tags %}
 {% load staticfiles %}
 
+<!-- begin meta -->
+{% block title %}{{ object.initiative_identifier }} contributions for and against | scpr.org{% endblock %}
+
+{% block description %}The campaign finance tracker uses Maplight data to show how much money is being raised to support or oppose each ballot measure and, more specifically, which players are spending money to influence the outcome of the vote.{% endblock %}
+
+{% block keywords %}{% for support in supporting_contributions %}{{ support.name | title }}, {% endfor %}{% for oppose in opposing_contributions %}{{ oppose.name | title }}, {% endfor %}{% endblock %}
+<!-- end meta -->
+
 {% block contributions_chart_config %}
     <script>
         var chartConfig = {% contribs_as_percent total_support total_opposition %};
