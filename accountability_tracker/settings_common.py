@@ -1,3 +1,13 @@
+"""
+Django settings for accountability_tracker project.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.7/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.7/ref/settings/
+"""
+
 import os
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
@@ -62,17 +72,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
+    #'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    #'django.middleware.cache.UpdateCacheMiddleware',
+    #'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    #'calfire_tracker.middleware.XsSharing'
 )
 
 #CACHE_MIDDLEWARE_ALIAS = 'default'
@@ -82,19 +91,20 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'accountability_tracker.urls'
 
 INSTALLED_APPS = (
+
     'django.contrib.admin',
-    'django.contrib.admindocs',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django.contrib.flatpages',
     'django.contrib.redirects',
     'django.contrib.humanize',
 
     # installed applications
+<<<<<<< HEAD
     'ballot_initiatives',
 
     # api & tools
@@ -102,9 +112,18 @@ INSTALLED_APPS = (
     'django_admin_bootstrapped',
     'commander',
 
+=======
+    'calaccess_raw',
+    'maplight_finance',
+    'bakery',
+    #'ballot_initiatives',
+    #'commander',
+
+    # api & tools
+    #'django_admin_bootstrapped',
+>>>>>>> FETCH_HEAD
     #'massadmin',
-    'debug_toolbar',
-    #'tastypie',
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -112,9 +131,12 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error when DEBUG=False.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
+
 LOGGING = {
     'version': 1,
+
     'disable_existing_loggers': True,
+
     'formatters': {
         'verbose': {
             'format' : "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
@@ -124,26 +146,32 @@ LOGGING = {
             'format': "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s"
         },
     },
+
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'simple'
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'mysite.log',
-            'formatter': 'verbose'
-        },
+
+        #'file': {
+            #'level': 'DEBUG',
+            #'class': 'logging.FileHandler',
+            #'filename': 'mysite.log',
+            #'formatter': 'verbose'
+        #},
     },
+
     'loggers': {
-        'calfire_tracker': {
+        'accountability_tracker': {
             'handlers': ['console'],
             'level': 'DEBUG',
+            'propagate': False,
         },
     }
 }
+
+TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner'
 
 AUTH_PROFILE_MODULE = 'create_user.UserProfile'
 

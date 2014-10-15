@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% load template_tags %}
+{% load staticfiles %}
+
+<!-- begin meta -->
+{% block title %}{{ object.initiative_identifier }} contributions for and against | scpr.org{% endblock %}
+
+{% block description %}The campaign finance tracker uses Maplight data to show how much money is being raised to support or oppose each ballot measure and, more specifically, which players are spending money to influence the outcome of the vote.{% endblock %}
+
+{% block keywords %}{% for support in supporting_contributions %}{{ support.name | title }}, {% endfor %}{% for oppose in opposing_contributions %}{{ oppose.name | title }}, {% endfor %}{% endblock %}
+<!-- end meta -->
+
+{% block contributions_chart_config %}
+    <script>
+        var chartConfig = {% contribs_as_percent total_support total_opposition %};
+    </script>
+{% endblock %}
+
+{% block page_content %}
+    <div class="ledger">
+        <div class="contributors clearfix">
+            <div class="support">
+                <header>
+                    <mark>
+                        <h1 class="align-left"><span class="support-accent">For</span> {{ object.initiative_identifier }}</h1>
+                    </mark>
+                </header>
+                <section class="display">
+                    <mark>
+                        <h1 class="align-left">Top five contributors</h1>
+                    </mark>
+                    <ol>
+                        {% for support in supporting_contributions %}
+                            <li>
+                                <dl class="clearfix">
+                                    {% if support.total == "0.00" %}
+                                        <dt>No contributions reported</dt>
+                                        <dd></dd>
+                                    {% else %}
+                                        <dt>{{ support.name | title }}</dt>
+                                        <dd>{{ support.total | currency }}</dd>
+                                    {% endif %}
+                                </dl>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            </div>
+            <div class="oppose">
+                <header class="prologue">
+                    <mark>
+                        <h1 class="align-right">{{ object.initiative_identifier }} <span class="oppose-accent">Against</span></h1>
+                    </mark>
+                </header>
+                <section class="display">
+                    <mark>
+                        <h1 class="align-right">Top five contributors</h1>
+                    </mark>
+                    <ol>
+                        {% for oppose in opposing_contributions %}
+                            <li>
+                                <dl class="clearfix">
+                                    {% if oppose.total == 0.00 %}
+                                        <dt>No contributions reported</dt>
+                                        <dd></dd>
+                                    {% else %}
+                                        <dt>{{ oppose.name | title }}</dt>
+                                        <dd>{{ oppose.total | currency }}</dd>
+                                    {% endif %}
+                                </dl>
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </section>
+            </div>
+            <aside class="support-contributor-totals">
+                {% if supporting_contributions.0.total == 0.00 %}
+                    <h3 class="align-left">Total contributors: 0</h3>
+                {% else %}
+                    <h3 class="align-left">Total contributors: {{ count_supporting }}</h3>
+                {% endif %}
+            </aside>
+            <aside class="oppose-contributor-totals">
+                {% if opposing_contributions.0.total == 0.00 %}
+                    <h3 class="align-right">Total contributors: 0</h3>
+                    <dd></dd>
+                {% else %}
+                    <h3 class="align-right">Total contributors: {{ count_opposing }}</h3>
+                {% endif %}
+            </aside>
+        </div>
+        <div id="chart-container"></div>
+        <aside class="totals clearfix">
+            <div class="support-total">
+                <dl class="align-left">
+                    <dt>Amount total</dt>
+                    <dd>{{ total_support | currency }}</dd>
+                </dl>
+            </div>
+            <div class="rule-style-left"></div>
+            <div class="oppose-total">
+                <dl class="align-right">
+                    <dt>Amount total</dt>
+                    <dd>{{ total_opposition | currency }}</dd>
+                </dl>
+            </div>
+            <div class="rule-style-right"></div>
+        </aside>
+    </div>
+    <footer class="clearfix">
+        <div class="text">
+            <ol>
+            <li>
+                <dl class="clearfix">
+                    <dt>Data Source</dt>
+                    <dd>MapLight</dd>
+                </dl>
+            </li>
+            <li>
+                <dl>
+                    <dt>Design &amp; Code</dt>
+                    <dd>89.3 KPCC</dd>
+                </dl>
+            </li>
+        </div>
+        <div class="logo">
+            <img src="..{% static 'images/maplight_logo_partner.png' %}" />
+        </div>
+    </footer>
+{% endblock %}

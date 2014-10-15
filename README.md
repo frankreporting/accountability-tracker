@@ -65,4 +65,4 @@ An approach to educating voters about the ballot initiative process
 
 * Could be billed as part of our stalled Project Citizen initiative, which could be rekindled and have a higher profile on the politics vertical?
 
-* We did a version of this at KCET and it was the single-most successful digital campaign the site had ever run. This proposal would be an improvement on what we did there, taking it to another level.
+* We did a version of this at [KCET](http://www.kcet.org/news/ballotbrief/ballot-measures/california-propositions-guide-2012-cheat-sheet.html) and it was the single-most successful digital campaign the site had ever run. This proposal would be an improvement on what we did there, taking it to another level.
