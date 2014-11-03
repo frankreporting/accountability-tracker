@@ -37,6 +37,9 @@ def requirements():
 def data():
     local("python manage.py ingest_contributor_data")
 
+def tweets():
+    local("python manage.py search_twitter")
+
 def build():
     local("python manage.py build")
 
