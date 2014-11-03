@@ -13,6 +13,7 @@ import urllib2
 import requests
 import string
 from datetime import tzinfo
+from dateutil import parser
 
 #logger = logging.getLogger("root")
 #logging.basicConfig(
@@ -107,6 +108,53 @@ def download_map_light_csv(list_of_urls):
                 break
 
 
+def import_csv_to_model(csv_file):
+    """ obsolete manager to read a csvfile and write data to model """
+    with open(csv_file, 'r', buffering=0) as imported_file:
+        file = csv.reader(imported_file, delimiter=',', quoting=csv.QUOTE_ALL)
+
+        file.next()
+        for column in file:
+            logger.debug(column)
+            try:
+                transaction = evaluate_transaction_number(column[7], column[0], column[1], column[15], column[11])
+                initiative_instance = Initiative.objects.get(initiative_identifier=str(column[0]))
+                obj, created = InitiativeContributor.objects.get_or_create(
+                    transaction_number = transaction,
+                    defaults={
+                        "initiative_identifier_id": initiative_instance.id,
+                        "stance": str(column[1]),
+                        "transaction_name": str(column[2]),
+                        "committee_id": str(column[3]),
+                        "name": evaluate(str(column[4])),
+                        "name_slug": create_name_slug_from(column[4]),
+                        "employer": str(column[5]),
+                        "occupation": str(column[6]),
+                        "city": str(column[7]),
+                        "state": str(column[8]),
+                        "zip_code": str(column[9]),
+                        #"id_number": column[10],
+                        "payment_type": str(column[11]),
+                        "amount": float(column[12]),
+                        "transaction_date": convert_date_to_nicey_format(column[13]),
+                        "filed_date": convert_date_to_nicey_format(column[14]),
+                        "transaction_number": transaction,
+                        "is_individual": str(column[16]),
+                        "donor_type": str(column[17]),
+                        "industry": str(column[18]),
+                        "data_as_of_date": parser.parse("11/01/2014")
+                    }
+                )
+                if not created:
+                    logger.debug("Record exists")
+                else:
+                    logger.debug("New record created for %s" % (transaction))
+            except Exception, exception:
+                logger.error(exception)
+                break
+    imported_file.close()
+
+
 def evaluate_transaction_number(city, prop_number, stance, transaction_number, payment_type):
     """ fix if a contribution has no transaction number """
     if prop_number != "":
@@ -155,16 +203,20 @@ def create_name_slug_from(name):
 
 def convert_date_to_nicey_format(date):
     """ fix for improper dates coming back """
-    if date == "0000-00-00":
+    if date is None or date is "":
+        returned_date = "1900-01-01"
+    elif date == "0000-00-00":
         returned_date = "1900-01-01"
     else:
-        returned_date = date
+        returned_date = parser.parse(date)
+    logger.debug(returned_date)
     return returned_date
 
 
 class Command(BaseCommand):
     help = "Imports csv to django model"
     def handle(self, *args, **options):
-        request_map_light_api(settings.MAP_LIGHT_API_KEY)
+        #request_map_light_api(settings.MAP_LIGHT_API_KEY)
         #download_map_light_csv(local_testing_map_light_csvs)
+        import_csv_to_model("/Users/KellerUser/Desktop/CA_BM_CF_10_17_pull_final_upload.csv")
         self.stdout.write("\nScraping finished at %s\n" % str(datetime.datetime.now()))
