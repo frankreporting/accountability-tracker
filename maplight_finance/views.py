@@ -68,10 +68,19 @@ class InitialDetailView(BuildableDetailView):
         count_total_opposing_contributions = contributions.filter(stance="Oppose").count()
         context["total_contributions"] = total_contributions
         context["total_contributions"] = context["total_contributions"][0]["total"]
+
         context["total_support"] = total_support
-        context["total_support"] = context["total_support"][0]["total"]
+        if len(context["total_support"]) > 0:
+            context["total_support"] = context["total_support"][0]["total"]
+        else:
+            context["total_support"] = None
+
         context["total_opposition"] = total_opposition
-        context["total_opposition"] = context["total_opposition"][0]["total"]
+        if len(context["total_opposition"]) > 0:
+            context["total_opposition"] = context["total_opposition"][0]["total"]
+        else:
+            context["total_opposition"] = 0
+
         context["supporting_contributions"] = supporting_contributions
         context["opposing_contributions"] = opposing_contributions
         context["count_supporting"] = count_total_supporting_contributions
