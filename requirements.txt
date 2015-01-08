@@ -26,3 +26,4 @@ sqlparse==0.1.11
 twitter==1.15.0
 wsgiref==0.1.2
 xlrd==0.9.3
+yolk==0.4.3
