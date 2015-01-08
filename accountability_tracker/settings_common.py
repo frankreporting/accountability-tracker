@@ -111,10 +111,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
 
     # installed applications
-    'calaccess_raw',
     'maplight_finance',
     'bakery',
-    #'ballot_initiatives',
     #'commander',
 
     # api & tools
