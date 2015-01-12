@@ -31,6 +31,9 @@ def migrate():
     # production function to manually run the scraper in local environment
     local("python manage.py migrate")
 
+def maplight_test():
+    local("python manage.py test maplight_finance")
+
 def data():
     local("python manage.py ingest_contributor_data")
 
