@@ -14,17 +14,19 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-# enable the admin
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    url(r'^admin/', include(admin.site.urls)),
+urlpatterns = [
+    url(r"^admin/doc/", include("django.contrib.admindocs.urls")),
+    url(r"^admin/", include(admin.site.urls)),
 
     # url pattern to kick root to index of maplight_finance application
-    url(r'', include('maplight_finance.urls')),
+    url(r"", include("maplight_finance.urls")),
 
-    #url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {
-        #'document_root': settings_development.STATIC_ROOT, 'show_indexes': settings_development.DEBUG
-    #}),
-)
+    # batch edit in admin
+    url(r"^admin/", include("massadmin.urls")),
+]
+
+if settings.DEBUG and settings.MEDIA_ROOT:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
