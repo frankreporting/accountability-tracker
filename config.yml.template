@@ -1,0 +1,36 @@
+---
+debug: True
+secret_key:
+internal_ips: "127.0.0.1"
+database:
+  host:
+  port:
+  database:
+  username:
+  password:
+email:
+  host:
+  user:
+  password:
+  port:
+  use_tls:
+cache:
+  host:
+  port:
+  db:
+build:
+  deploy_dir:
+  build_dir:
+api:
+  tweepy:
+    consumer_key:
+    consumer_secret:
+    access_token:
+    access_token_secret:
+  assethost:
+    token_secret:
+  maplight:
+    api_key:
+  headers:
+    from:
+    user_agent:

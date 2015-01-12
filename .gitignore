@@ -66,3 +66,7 @@ config/*.yml
 dbsync_setup.rb
 data/*
 accountability_tracker/public/*
+
+config.yml
+development.yml
+dbsync_setup.rb
