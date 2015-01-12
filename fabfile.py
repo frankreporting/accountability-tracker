@@ -9,7 +9,7 @@ from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
 from fabric.contrib import django
-django.settings_module("accountability_tracker.settings_development")
+django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
 
 env.use_ssh_config = True
@@ -31,14 +31,11 @@ def migrate():
     # production function to manually run the scraper in local environment
     local("python manage.py migrate")
 
-def requirements():
-    local("pip install -r requirements.txt")
+def maplight_test():
+    local("python manage.py test maplight_finance")
 
 def data():
     local("python manage.py ingest_contributor_data")
-
-def tweets():
-    local("python manage.py search_twitter")
 
 def build():
     local("python manage.py build")
