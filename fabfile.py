@@ -1,18 +1,34 @@
 from __future__ import with_statement
+from fabric.api import task, env, run, local, roles, cd, execute, hide, puts, sudo, prefix
 import os
+import sys
 import time
 import datetime
 import logging
+import MySQLdb
+import random
+import yaml
 from fabric.operations import prompt
-from fabric.api import local, cd, run, env
 from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
 from fabric.contrib import django
+
 django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
 
-env.use_ssh_config = True
+#django.project("accountability_tracker")
+#import accountability_tracker
+#sys.path.append(accountability_tracker.__path__[0])
+
+env.project_name = "accountability_tracker"
+env.local_branch = "master"
+env.remote_ref = "origin/master"
+env.requirements_file = "requirements.txt"
+env.use_ssh_config = False
+
+CONFIG_FILE = os.environ.setdefault("ACCOUNTABILITY_TRACKER_CONFIG_PATH", "./development.yml")
+CONFIG = yaml.load(open(CONFIG_FILE))
 
 logger = logging.getLogger("root")
 logging.basicConfig(
@@ -20,16 +36,70 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-# development functions
 def run():
+    """
+    shortcut for base manage.py function to run the dev server
+    """
     local("python manage.py runserver")
 
 def make():
+    """
+    shortcut for base manage.py function to sync the dev database
+    """
     local("python manage.py makemigrations")
 
 def migrate():
-    # production function to manually run the scraper in local environment
+    """
+    shortcut for base manage.py function to apply db migrations
+    """
     local("python manage.py migrate")
+
+def superuser():
+    """
+    shortcut for base manage.py function to create a superuser
+    """
+    local("python manage.py createsuperuser")
+
+def requirements():
+    """
+    shortcut to install requirements from repository's requirements.txt
+    """
+    local("pip install -r requirements.txt")
+
+
+
+def create_db():
+    db_config = CONFIG["database"]
+    connection = None
+    #create_statement = "CREATE DATABASE %s" % (db_config["database"])
+    create_statement = "CREATE DATABASE %s" % ("test_keller")
+    try:
+        connection = MySQLdb.connect(
+            host = db_config["host"],
+            user = db_config["username"],
+            passwd = db_config["password"]
+        )
+        cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute(create_statement)
+        connection.commit()
+    except MySQLdb.DatabaseError, e:
+        print "Error %s" % (e)
+        sys.exit(1)
+    finally:
+        if connection:
+            connection.close()
+
+
+
+
+
+def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'):
+    """
+    generates secret key for use in django settings
+    https://github.com/datadesk/django-project-template/blob/master/fabfile/makesecret.py
+    """
+    key = ''.join(random.choice(allowed_chars) for i in range(length))
+    print 'SECRET_KEY = "%s"' % key
 
 def maplight_test():
     local("python manage.py test maplight_finance")

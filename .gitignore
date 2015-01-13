@@ -55,7 +55,6 @@ docs/_build/
 # added by me
 .DS_Store
 settings_development.py
-settings_production.py
 *.pyc
 *.sqlite
 *.csv
