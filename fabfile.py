@@ -14,6 +14,8 @@ from django.conf import settings
 
 env.use_ssh_config = True
 
+env.requirements_file = "requirements.txt"
+
 logger = logging.getLogger("root")
 logging.basicConfig(
     format = "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
