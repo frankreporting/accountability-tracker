@@ -1,6 +1,5 @@
 import os
 import logging
-import settings_development
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
