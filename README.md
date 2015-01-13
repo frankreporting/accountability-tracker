@@ -6,6 +6,37 @@ SCPR repository to house an iterative Django project that will store and provide
 Documentation
 =============
 
+* Bootstrapping the project for local development
+
+    * Clone the project repository
+
+            git clone git@github.com:SCPR/accountability-tracker.git
+
+    * Change into the directory
+
+            cd accountability-tracker
+
+    * Assuming you're running Python 2.x and have [virtualenv](https://virtualenv.pypa.io/en/latest/) and [virtualenvwrapper](https://virtualenvwrapper.readthedocs.org/en/latest/) installed...
+
+        * Create a new virtualenv and activate it
+
+                mkvirtualenv accountability-tracker
+                workon accountability-tracker
+
+        * Install the project requirements
+
+                pip install -r requirements.txt
+
+        * Create a copy of ```config.yml.template``` and rename it as ```development.yml```. ```development.yml``` is ignored by default and should not be committed to the repository.
+
+                cp config.yml.template development.yml
+
+        * Open ```development.yml``` and fill out the necessary parameters
+
+        * Create your database and sync
+
+        * Start the project's development server
+
 * Applications
     * **Maplight Finance**
         * [Application](/maplight_finance)
