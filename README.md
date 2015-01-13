@@ -43,8 +43,8 @@ Documentation
         * [Documentation](https://github.com/SCPR/accountability-tracker/wiki/Maplight-Finance)
 
     * ~~Initiative Tracker~~
-        * ~~[Application](/maplight_finance)~~
-        * ~~[Documentation](https://github.com/SCPR/accountability-tracker/wiki/Maplight-Finance)~~
+        * ~~[Application]()~~
+        * ~~[Documentation]()~~
 
 * Project Development & Scoping
     * [Code: Scraping Reference](https://github.com/SCPR/accountability-tracker/wiki/Code:-Scraping-Reference)
