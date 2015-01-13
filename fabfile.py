@@ -1,10 +1,11 @@
 from __future__ import with_statement
+from fabric.api import task, env, run, local, roles, cd, execute, hide, puts, sudo, prefix
 import os
 import time
 import datetime
 import logging
+import MySQLdb
 from fabric.operations import prompt
-from fabric.api import local, cd, run, env
 from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
@@ -12,9 +13,10 @@ from fabric.contrib import django
 django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
 
+env.local_branch = 'master'
+env.remote_ref = 'origin/master'
+env.requirements_file = 'requirements.txt'
 env.use_ssh_config = True
-
-env.requirements_file = "requirements.txt"
 
 logger = logging.getLogger("root")
 logging.basicConfig(
@@ -22,16 +24,60 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-# development functions
 def run():
+    """
+    shortcut for base manage.py function to run the dev server
+    """
     local("python manage.py runserver")
 
 def make():
+    """
+    shortcut for base manage.py function to sync the dev database
+    """
     local("python manage.py makemigrations")
 
 def migrate():
-    # production function to manually run the scraper in local environment
+    """
+    shortcut for base manage.py function to apply db migrations
+    """
     local("python manage.py migrate")
+
+def superuser():
+    """
+    shortcut for base manage.py function to create a superuser
+    """
+    local("python manage.py createsuperuser")
+
+def requirements():
+    """
+    shortcut to install requirements from repository's requirements.txt
+    """
+    local("pip install -r requirements.txt")
+
+#def create_db():
+    """
+    shortcut to create a development database
+    """
+    #logger.debug("creating the database")
+    #create_connection("CREATE DATABASE %s" % settings.DATABASES["default"]["NAME"])
+
+#def create_connection(target_query):
+    #connection = None
+    #try:
+        #connection = MySQLdb.connect(
+            #host = settings.DATABASES["default"]["HOST"],
+            #user = settings.DATABASES["default"]["USER"],
+            #passwd = settings.DATABASES["default"]["PASSWORD"]
+        #)
+        #cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+        #cursor.execute(target_query)
+        #connection.commit()
+    #except MySQLdb.DatabaseError, e:
+        #print "Error %s" % (e)
+        #sys.exit(1)
+    #finally:
+        #if connection:
+            #connection.close()
 
 def maplight_test():
     local("python manage.py test maplight_finance")
