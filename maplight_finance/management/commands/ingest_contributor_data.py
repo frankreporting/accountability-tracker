@@ -40,7 +40,7 @@ class MapLightApiRequest(object):
         """
         make a request to the Map Light API and receive JSON data
         """
-        response = requests.get(url, headers=settings.MAP_LIGHT_API_HEADERS)
+        response = requests.get(url, headers=settings.REQUEST_HEADERS)
         if response.status_code == 200:
             result = response.json()
             api_data = result.items()
