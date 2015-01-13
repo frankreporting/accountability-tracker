@@ -13,13 +13,8 @@ from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
 from fabric.contrib import django
-
 django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
-
-#django.project("accountability_tracker")
-#import accountability_tracker
-#sys.path.append(accountability_tracker.__path__[0])
 
 env.project_name = "accountability_tracker"
 env.local_branch = "master"
@@ -66,13 +61,11 @@ def requirements():
     """
     local("pip install -r requirements.txt")
 
-
-
 def create_db():
-    db_config = CONFIG["database"]
     connection = None
-    #create_statement = "CREATE DATABASE %s" % (db_config["database"])
-    create_statement = "CREATE DATABASE %s" % ("test_keller")
+    db_config = CONFIG["database"]
+    logger.debug("Creating %s database for %s django project" % (db_config["database"], env.project_name))
+    create_statement = "CREATE DATABASE %s" % (db_config["database"])
     try:
         connection = MySQLdb.connect(
             host = db_config["host"],
@@ -88,10 +81,6 @@ def create_db():
     finally:
         if connection:
             connection.close()
-
-
-
-
 
 def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'):
     """
