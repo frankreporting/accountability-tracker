@@ -36,6 +36,10 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
+"""
+development functions
+"""
+
 def run():
     """
     shortcut for base manage.py function to run the dev server
@@ -60,17 +64,19 @@ def superuser():
     """
     local("python manage.py createsuperuser")
 
+"""
+bootstrapping functions
+"""
+
 def requirements():
     """
     shortcut to install requirements from repository's requirements.txt
     """
     local("pip install -r requirements.txt")
 
-
-
 def create_db():
-    db_config = CONFIG["database"]
     connection = None
+    db_config = CONFIG["database"]
     #create_statement = "CREATE DATABASE %s" % (db_config["database"])
     create_statement = "CREATE DATABASE %s" % ("test_keller")
     try:
@@ -89,10 +95,6 @@ def create_db():
         if connection:
             connection.close()
 
-
-
-
-
 def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'):
     """
     generates secret key for use in django settings
@@ -100,6 +102,24 @@ def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#
     """
     key = ''.join(random.choice(allowed_chars) for i in range(length))
     print 'SECRET_KEY = "%s"' % key
+
+def bootstrap():
+    with prefix("WORKON_HOME=$HOME/.virtualenvs"):
+        with prefix("source /usr/local/bin/virtualenvwrapper.sh"):
+            local("mkvirtualenv %s" % (env.project_name))
+            with prefix("workon %s" % (env.project_name)):
+                requirements()
+                time.sleep(2)
+                create_db()
+                time.sleep(2)
+                migrate()
+                time.sleep(2)
+                local("python manage.py createsuperuser")
+                run()
+
+"""
+maplight finance deploy functions
+"""
 
 def maplight_test():
     local("python manage.py test maplight_finance")
