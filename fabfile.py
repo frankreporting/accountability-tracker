@@ -154,5 +154,12 @@ def deploy():
     time.sleep(5)
     commit()
 
+"""
+cali_water functions
+"""
+
+def build_water_use():
+    local("python manage.py ingest_monthly_urban_water_supplier_report_data")
+
 def __env_cmd(cmd):
     return env.bin_root + cmd

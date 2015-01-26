@@ -85,6 +85,7 @@ INSTALLED_APPS = (
 
     # installed applications
     "maplight_finance",
+    "cali_water",
 
     # api & tools
     "massadmin",
