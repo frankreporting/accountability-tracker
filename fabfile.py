@@ -158,8 +158,14 @@ def deploy():
 cali_water functions
 """
 
-def build_water_use():
-    local("python manage.py ingest_monthly_urban_water_supplier_report_data")
+def water_test():
+    local("python manage.py test cali_water")
+
+def water_fetch_use():
+    local("python manage.py fetch_usage_data")
+
+def water_play():
+    local("python manage.py playground")
 
 def __env_cmd(cmd):
     return env.bin_root + cmd

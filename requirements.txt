@@ -20,10 +20,13 @@ django-mass-edit==2.2
 django-tastypie==0.12.0
 ecdsa==0.11
 enum34==1.0
+hurry.filesize==0.9
 jdcal==1.0
 kombu==3.0.24
+latimes-calculate==0.3.0
 openpyxl==2.1.0
 paramiko==1.14.1
+progressbar==2.2
 pycrypto==2.6.1
 python-dateutil==2.1
 python-mimeparse==0.1.4
@@ -32,6 +35,7 @@ requests==2.2.1
 six==1.5.2
 sqlparse==0.1.14
 twitter==1.15.0
+webassets==0.10.1
 wsgiref==0.1.2
 xlrd==0.9.3
 yolk==0.4.3

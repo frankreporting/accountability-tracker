@@ -7,6 +7,13 @@ from settings_common import *
 import pytz
 from pytz import timezone
 import yaml
+import logging
+
+logger = logging.getLogger("root")
+logging.basicConfig(
+    format = "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
+    level=logging.DEBUG
+)
 
 CONFIG_FILE = os.environ.setdefault("ACCOUNTABILITY_TRACKER_CONFIG_PATH", "./development.yml")
 CONFIG = yaml.load(open(CONFIG_FILE))
@@ -67,11 +74,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 if "build" in CONFIG:
     DEPLOY_DIR = CONFIG["build"]["deploy_dir"]
     BUILD_DIR = CONFIG["build"]["build_dir"]
-
-    BAKERY_VIEWS = (
-        "maplight_finance.views.InitialListView",
-        "maplight_finance.views.InitialDetailView",
-    )
+    BAKERY_VIEWS = tuple(CONFIG["build"]["views"])
 
 # django debug toolbar configuration
 if DEBUG_TOOLBAR:
