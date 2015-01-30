@@ -61,6 +61,7 @@ settings_development.py
 SCRATCHPAD.md
 tmp/*
 public/static/*
+public*
 config/*.yml
 dbsync_setup.rb
 data/*
