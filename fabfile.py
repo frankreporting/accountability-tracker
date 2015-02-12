@@ -64,6 +64,7 @@ def superuser():
     """
     local("python manage.py createsuperuser")
 
+
 """
 bootstrapping functions
 """
@@ -75,10 +76,12 @@ def requirements():
     local("pip install -r requirements.txt")
 
 def create_db():
+    """
+    shortcut to build the database for the project based on settings in the specific .yml file
+    """
     connection = None
     db_config = CONFIG["database"]
-    #create_statement = "CREATE DATABASE %s" % (db_config["database"])
-    create_statement = "CREATE DATABASE %s" % ("test_keller")
+    create_statement = "CREATE DATABASE %s" % (db_config["database"])
     try:
         connection = MySQLdb.connect(
             host = db_config["host"],
@@ -104,6 +107,11 @@ def makesecret(length=50, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789!@#
     print 'SECRET_KEY = "%s"' % key
 
 def bootstrap():
+    """
+    get the project up and running by creating virtualenv,
+    installing requirements, creating the database,
+    running initial migration and crearing superuser
+    """
     with prefix("WORKON_HOME=$HOME/.virtualenvs"):
         with prefix("source /usr/local/bin/virtualenvwrapper.sh"):
             local("mkvirtualenv %s" % (env.project_name))
@@ -117,26 +125,70 @@ def bootstrap():
                 local("python manage.py createsuperuser")
                 run()
 
+
 """
 maplight finance deploy functions
 """
-
 def maplight_test():
+    """
+    run the maplight finance application tests
+    """
     local("python manage.py test maplight_finance")
 
-def data():
-    local("python manage.py ingest_contributor_data")
+def fetch_maplight():
+    """
+    ingest the latest data from the maplight contributions api
+    """
+    local("python manage.py fetch_maplight_data")
 
+
+"""
+cali_water functions
+"""
+def water_test():
+    """
+    run the cali_water application tests
+    """
+    local("python manage.py test cali_water")
+
+def fetch_water_use():
+    """
+    ingest the latest data from the state water resources board
+    """
+    local("python manage.py fetch_water_use")
+
+def water_play():
+    """
+    run functions in the playground
+    """
+    local("python manage.py playground")
+
+
+"""
+django bakery functions
+"""
 def build():
+    """
+    build the views as specified in the .yml file
+    """
     local("python manage.py build")
 
 def buildserver():
+    """
+    run the local server to view baked pages
+    """
     local("python manage.py buildserver")
 
 def move():
+    """
+    NEEDS WORK: move baked files to the proper directory
+    """
     local("python manage.py move_baked_files")
 
 def commit(message='updates'):
+    """
+    NEEDS WORK: commit the changes to the static projects repo
+    """
     with lcd(settings.DEPLOY_DIR):
         try:
             message = raw_input("Enter a git commit message:  ")
@@ -146,6 +198,9 @@ def commit(message='updates'):
         local("git push")
 
 def deploy():
+    """
+    NEEDS WORK: runs the build, move and commit functions
+    """
     data()
     time.sleep(5)
     build()
@@ -153,19 +208,6 @@ def deploy():
     local("python manage.py move_baked_files")
     time.sleep(5)
     commit()
-
-"""
-cali_water functions
-"""
-
-def water_test():
-    local("python manage.py test cali_water")
-
-def water_fetch_use():
-    local("python manage.py fetch_usage_data")
-
-def water_play():
-    local("python manage.py playground")
 
 def __env_cmd(cmd):
     return env.bin_root + cmd
