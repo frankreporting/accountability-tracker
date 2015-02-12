@@ -31,7 +31,6 @@ class Initiative(models.Model):
 
 class InitiativeContributor(models.Model):
     initiative_identifier = models.ForeignKey(Initiative, null=True, blank=True, related_name="initiative_initiative_identifier")
-    #initiative_identifier = models.CharField("Initiative", max_length=500, null=True, blank=True)
     stance = models.CharField("Stance on Initiative", max_length=500, null=True, blank=True)
     transaction_name = models.CharField("Transaction Name", max_length=500, null=True, blank=True)
     committee_id = models.CharField(max_length=500, null=True, blank=True)
