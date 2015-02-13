@@ -20,6 +20,9 @@ urlpatterns = [
     # url pattern to kick root to index of cali_water application
     url(r"^monthly-water-use/", include("cali_water.urls")),
 
+    # url pattern to kick root to index of cali_water application
+    url(r"^2015-la-election-guide/", include("election_profiles.urls")),
+
     # url pattern to kick root to index of maplight_finance application
     url(r"", include("maplight_finance.urls")),
 
