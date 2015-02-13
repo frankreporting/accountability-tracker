@@ -165,6 +165,16 @@ def water_play():
 
 
 """
+election profiles
+"""
+def load_candidate():
+    """
+    load candidates from json
+    """
+    local("python manage.py load_candidates")
+
+
+"""
 django bakery functions
 """
 def build():
