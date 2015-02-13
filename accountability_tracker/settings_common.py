@@ -85,7 +85,6 @@ INSTALLED_APPS = (
 
     # installed applications
     "maplight_finance",
-    "cali_water",
     "election_profiles",
 
     # api & tools
