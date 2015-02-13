@@ -30,8 +30,15 @@ cache:
 
 # required absolute path to the build & deploy directory for django-bakery and deployment
 build:
-  build_dir: ""
-  deploy_dir: ""
+  deploy_dir: "/Volumes/one_tb_hd/_programming/2kpcc/static-projects/test/keller"
+  build_dir: "/Volumes/one_tb_hd/_programming/2kpcc/static-projects/test/keller/elections"
+  views:
+    #- "maplight_finance.views.InitialListView"
+    #- "maplight_finance.views.InitialDetailView"
+    #- "cali_water.views.InitialListView"
+    #- "cali_water.views.InitialDetailView"
+    - "election_profiles.views.InitialListView"
+    - "election_profiles.views.InitialDetailView"
 
 # api settings and keys for the application
 api:
