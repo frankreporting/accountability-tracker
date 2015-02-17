@@ -18,7 +18,7 @@ urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
 
     # url pattern to kick root to index of cali_water application
-    url(r"^monthly-water-use/", include("cali_water.urls")),
+    #url(r"^monthly-water-use/", include("cali_water.urls")),
 
     # url pattern to kick root to index of cali_water application
     url(r"^2015-la-election-guide/", include("election_profiles.urls")),
