@@ -173,6 +173,12 @@ def load_candidate():
     """
     local("python manage.py load_candidates")
 
+def svscrape():
+    """
+    scrape candidate data from SmartVoter.org
+    """
+    local("python manage.py smart_voter_scraper")
+
 
 """
 django bakery functions
