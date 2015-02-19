@@ -13,13 +13,8 @@ from fabric.contrib.console import confirm
 from fabric.context_managers import lcd
 from fabric.colors import green
 from fabric.contrib import django
-
 django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
-
-#django.project("accountability_tracker")
-#import accountability_tracker
-#sys.path.append(accountability_tracker.__path__[0])
 
 env.project_name = "accountability_tracker"
 env.local_branch = "master"
