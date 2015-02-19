@@ -31,7 +31,7 @@ def index(request):
     total_sum = contributions.values("initiative_identifier").annotate(total=Sum("amount"))
     supporting_sum = supporting_contributions.values("initiative_identifier").annotate(total=Sum("amount"))
     opposing_sum = opposing_contributions.values("initiative_identifier").annotate(total=Sum("amount"))
-    return render_to_response("index.html", {
+    return render_to_response("maplight_finance/index.html", {
         "total_sum": total_sum,
         "supporting_sum": supporting_sum,
         "opposing_sum": opposing_sum
@@ -40,15 +40,17 @@ def index(request):
 
 class InitialListView(BuildableListView):
     """ """
+    build_path = "maplight-finance/index.html"
     model = Initiative
     #queryset = InitiativeContributor.objects.values("initiative_identifier").annotate(total=Sum("amount"))
-    template_name = "index.html"
+    template_name = "maplight_finance/index.html"
 
 
 class InitialDetailView(BuildableDetailView):
     """ """
+    build_path = "maplight-finance/charts/index.html"
     model = Initiative
-    template_name = "detail.html"
+    template_name = "maplight_finance/detail.html"
     slug_field = "initiative_slug"
 
     def get_object(self):

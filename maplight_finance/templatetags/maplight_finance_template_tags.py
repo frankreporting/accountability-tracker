@@ -12,12 +12,6 @@ import json
 import logging
 import decimal
 
-#logger = logging.getLogger("root")
-#logging.basicConfig(
-    #format = "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
-    #level=logging.DEBUG
-#)
-
 logger = logging.getLogger("accountability_tracker")
 
 register = Library()
@@ -27,7 +21,6 @@ def currency(dollars):
     dollars = round(int(dollars), 2)
     #return "$%s%s" % (intcomma(int(dollars)), ("%0.2f" % dollars)[-3:])
     return "$%s" % (intcomma(int(dollars)))
-
 
 @register.simple_tag
 def contribs_as_percent(support_dollars, oppose_dollars):

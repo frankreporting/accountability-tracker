@@ -85,6 +85,7 @@ INSTALLED_APPS = (
 
     # installed applications
     "maplight_finance",
+    "election_profiles",
 
     # api & tools
     "massadmin",

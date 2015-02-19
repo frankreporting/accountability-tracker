@@ -67,11 +67,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 if "build" in CONFIG:
     DEPLOY_DIR = CONFIG["build"]["deploy_dir"]
     BUILD_DIR = CONFIG["build"]["build_dir"]
-
-    BAKERY_VIEWS = (
-        "maplight_finance.views.InitialListView",
-        "maplight_finance.views.InitialDetailView",
-    )
+    BAKERY_VIEWS = tuple(CONFIG["build"]["views"])
 
 # django debug toolbar configuration
 if DEBUG_TOOLBAR:

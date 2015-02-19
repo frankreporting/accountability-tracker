@@ -1,0 +1,97 @@
+{% extends "election_profiles/no-header.html" %}
+{% load humanize %}
+{% load static %}
+{% load election_profiles_template_tags %}
+
+<!-- begin meta -->
+{% block title %}{{ object_list.object.candidate|title }} {% endblock %}
+{% block robots %}{% endblock %}
+{% block description %}{{ object_list.object.candidate|title }}{% endblock %}
+{% block keywords %}{{ object_list.object.candidate|title }}{% endblock %}
+{% block og_title %}{{ object_list.object.candidate|title }}{% endblock %}
+{% block og_site_name %}KPCC{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_url %}{% endblock %}
+{% block og_description %}{% endblock %}
+{% block twitter_url %}{% endblock %}
+{% block twitter_title %}{{ object_list.object.candidate|title }}{% endblock %}
+{% block twitter_description %}{% endblock %}
+{% block facebook_encoded_share_url %}{% endblock %}
+{% block twitter_share_text %}{% endblock %}
+{% block twitter_encoded_share_url %}{% endblock %}
+<!-- end meta -->
+
+{% block super_css %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="http://projects.scpr.org/static/static-files/v3-dependencies/css/jquery-ui.1.10.3.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="http://projects.scpr.org/static/static-files/css/jquery-alerts/jquery.alerts.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="..{% static 'css/main-foundation-style-v3.css' %}" media="screen" rel="stylesheet" type="text/css" />
+
+    <link href="..{% static 'css/election-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block header_js %}{% endblock %}
+
+{% block data_details %}{% endblock %}
+
+{% block data_visuals %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h3>{{ object.contest }} candidate</h3>
+        <div class="row" id="representative-container">
+            <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3" id="representative-image">
+                <img class="responsive" src="..{{ STATIC_URL }}images/{{ candidate.candidate|image_path }}" />
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9" id="representative-bio">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <h4>{{ object.candidate }}</h4>
+                    </div>
+                </div>
+                <div style="width:50%;float:left;">
+                    <h6>Biographical Highlights</h6>
+                    <ul>
+                        {% if object.biofacts %}
+                            {% for fact in object.biofacts %}
+                                <li>{{ fact }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <p><em>Information not available</em></p>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div style="width:50%;float:left;">
+                    <h6>Top Priorities if Elected</h6>
+                    <ul>
+                        {% if object.priorities %}
+                            {% for item in object.priorities %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <p><em>Information not available</em></p>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="row" style="clear:left;">
+                    {% if object.candidate_url %}
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ object.candidate_url }}" target="_blank"> More at SmartVoter.org</a></p>
+                        </div>
+                    {% endif %}
+                    {% if object.questions_url %}
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ object.questions_url }}" target="_blank"> Q&amp;A with SmartVoter</a></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block super_js %}
+    <script>
+        window.appConfig = {% app_config_object config_object %};
+        window.appConfig.open_about_this = false;
+    </script>
+    <script src="..{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
+{% endblock %}

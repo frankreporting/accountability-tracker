@@ -10,11 +10,12 @@ logger = logging.getLogger("accountability_tracker")
 
 # Create your tests here.
 class TestCase(TestCase):
-    """ xxxxxx """
+    """
+    Attempt to test the maplight_finance application
+    """
 
     url = "http://votersedge.org/services_open_api/cvg.contest_v1.json?apikey=938fde1af0f09c4a428e4777d40abc96&contest=M193&date=2014-11-02"
 
-    #response = requests.get(url, headers=settings.REQUEST_HEADERS)
     response = requests.get(url)
 
     required_keys = [
@@ -32,7 +33,9 @@ class TestCase(TestCase):
     ]
 
     def test_to_get_tests(self):
-        """ xxxxxx """
+        """
+        This is me learning to test
+        """
         a = 2
         b = 2
         self.assertEquals(a, b)
