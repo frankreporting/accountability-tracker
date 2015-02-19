@@ -71,17 +71,11 @@ def requirements():
     local("pip install -r requirements.txt")
 
 def create_db():
-<<<<<<< HEAD
-    connection = None
-    db_config = CONFIG["database"]
-    logger.debug("Creating %s database for %s django project" % (db_config["database"], env.project_name))
-=======
     """
     shortcut to build the database for the project based on settings in the specific .yml file
     """
     connection = None
     db_config = CONFIG["database"]
->>>>>>> master
     create_statement = "CREATE DATABASE %s" % (db_config["database"])
     try:
         connection = MySQLdb.connect(
