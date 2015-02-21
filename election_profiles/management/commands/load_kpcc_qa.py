@@ -21,6 +21,9 @@ logger = logging.getLogger("accountability_tracker")
 class CreateQAlinks(object):
 
     def _init(self, *args, **kwargs):
+        """
+        Set up links to candidate Q&A's on KPCC website here
+        """
         qalinks = [
             {"name": "Scott Mark Schmerelson", "link": "http://www.scpr.org/blogs/education/2015/02/13/17911/lausd-school-board-candidate-survey-scott-mark-sch/"},
             {"name": "Ankur Patel", "link": "http://www.scpr.org/blogs/education/2015/02/13/17912/lausd-school-board-candidate-survey-ankur-patel-di/"},
@@ -41,30 +44,6 @@ class CreateQAlinks(object):
                 print "kpcc_qa_url for candidate %s has been updated to %s." % (l["name"],obj.kpcc_qa_url)
             except:
                 print "There was a problem fetching the database object for candidate %s." % (l["name"])
-
-    """
-    Set up links to KPCC interviews here
-
-    if candidate == "Scott Mark Schmerelson":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17911/lausd-school-board-candidate-survey-scott-mark-sch/"
-    elif candidate == "Ankur Patel":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17912/lausd-school-board-candidate-survey-ankur-patel-di/"
-    elif candidate == "Carl J. Petersen":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17913/lausd-school-board-candidate-survey-carl-petersen/"
-    elif candidate == "Andrew Thomas":
-        kpcc_qa_url = "http://www.scpr.org/news/2015/02/13/49832/lausd-school-board-candidate-survey-andew-thomas-d/"
-    elif candidate == "Richard A. Vladovic":
-        kpcc_qa_url = "http://www.scpr.org/news/2015/02/13/49833/lausd-school-board-candidate-survey-dr-richard-vla/"
-    elif candidate == "Filiberto Gonzalez":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17917/lausd-school-board-candidate-survey-filiberto-gonz/"
-    elif candidate == "Tamar Galatzan":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17919/lausd-school-board-candidate-surveytamar-galatzan/"
-    elif candidate == "Bennett Kayser":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17918/lausd-school-board-candidate-survey-bennett-kayser/"
-    else:
-        kpcc_qa_url = ""
-    return kpcc_qa_url
-    """
 
 class Command(BaseCommand):
     help = "Set and load links to KPCC candidate Q&A's"
