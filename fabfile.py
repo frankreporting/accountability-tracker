@@ -174,6 +174,12 @@ def svscrape():
     """
     local("python manage.py smart_voter_scraper")
 
+def loadkpccqa():
+    """
+    load KPCC candidate Q&A links into database
+    """
+    local("python manage.py load_kpcc_qa")
+
 
 """
 django bakery functions

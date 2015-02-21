@@ -142,6 +142,11 @@
                                         <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.questions_url }}" target="_blank"> Q&amp;A with SmartVoter</a></p>
                                     </div>
                                 {% endif %}
+                                {% if candidate.kpcc_qa_url %}
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.kpcc_qa_url }}" target="_blank"> Q&amp;A with KPCC</a></p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

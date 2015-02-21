@@ -4,6 +4,7 @@ from __future__ import division
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from election_profiles.models import Candidate
 import logging
 import csv
@@ -23,12 +24,11 @@ class Command(BaseCommand):
         request_url_in('http://www.smartvoter.org/2015/03/03/ca/la/')
         self.stdout.write("\nTask finished at %s\n" % str(datetime.datetime.now()))
 
-contestlists = ['city','school']
-
 def request_url_in(target_url):
     """
     Looks up all contests by city, then by school district, and compiles the results into a single CSV file.
     """
+    contestlists = ['city','school']
     rows = []
 
     for n in contestlists:
@@ -38,135 +38,8 @@ def request_url_in(target_url):
         rowcluster = fetch_all_contests(soup)
         for row in rowcluster:
             rows.append(row)
-    #logger.debug(len(rows))
 
-    #print_to_CSV(filter_la(rows))
-    #print_to_json(filter_la(rows))
     check_db(filter_la(rows))
-
-def filter_la(rows):
-    la_rows = []
-    for r in range(len(rows)):
-        if re.search("Los Angeles",rows[r]['contest']) and not re.search("Trustees",rows[r]['contest']):
-            la_rows.append(rows[r])
-    return la_rows
-
-def list2string(listdata):
-    lst = ""
-    for l in range(len(listdata)):
-        lst += "\"" + listdata[l] + "\""
-        if l + 1 != len(listdata):
-            lst += ","
-    return lst
-
-def get_kpcc_qa(candidate):
-    """
-    Set up links to KPCC interviews here
-    """
-    if candidate == "Scott Mark Schmerelson":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17911/lausd-school-board-candidate-survey-scott-mark-sch/"
-    elif candidate == "Ankur Patel":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17912/lausd-school-board-candidate-survey-ankur-patel-di/"
-    elif candidate == "Carl J. Petersen":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17913/lausd-school-board-candidate-survey-carl-petersen/"
-    elif candidate == "Andrew Thomas":
-        kpcc_qa_url = "http://www.scpr.org/news/2015/02/13/49832/lausd-school-board-candidate-survey-andew-thomas-d/"
-    elif candidate == "Richard A. Vladovic":
-        kpcc_qa_url = "http://www.scpr.org/news/2015/02/13/49833/lausd-school-board-candidate-survey-dr-richard-vla/"
-    elif candidate == "Filiberto Gonzalez":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17917/lausd-school-board-candidate-survey-filiberto-gonz/"
-    elif candidate == "Tamar Galatzan":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17919/lausd-school-board-candidate-surveytamar-galatzan/"
-    elif candidate == "Bennett Kayser":
-        kpcc_qa_url = "http://www.scpr.org/blogs/education/2015/02/13/17918/lausd-school-board-candidate-survey-bennett-kayser/"
-    else:
-        kpcc_qa_url = ""
-    return kpcc_qa_url
-
-def simplify_contest_name(contestlong):
-    # Clean up contest name
-    conteststrings = contestlong.split(';')
-    if re.search("Council",conteststrings[0]):
-        contest = "City Council" + conteststrings[2]
-    else:
-        contest = "LAUSD School Board" + conteststrings[2]
-    return contest
-
-def print_to_json(rows):
-    jsonlist = {}
-    jsonlist['candidates'] = []
-    for r in range(len(rows)):
-        candidate = rows[r]['candidate']
-        contest = simplify_contest_name(rows[r]['contest'])
-        kpcc_qa_url = get_kpcc_qa(candidate)
-
-        # Create json object
-        jobj = {}
-        jobj['candidate'] = candidate
-        jobj['contest'] = contest
-        jobj['biofacts'] = rows[r]['biofacts']
-        jobj['priorities'] = rows[r]['priorities']
-        jobj['questions_url'] = rows[r]['questions_url']
-        jobj['candidate_url'] = rows[r]['candidate_url']
-        jobj['kpcc_qa_url'] = kpcc_qa_url
-        jsonlist['candidates'].append(jobj)
-    #logger.debug(contestobj)
-
-    jsondata = json.dumps(jsonlist, encoding="utf-8", indent=4, separators=(',', ': '))
-
-    # Write to file
-    ofile = open("election_profiles/data/smartvoter.json","w")
-    ofile.write(jsondata)
-    ofile.close()
-
-def slugify_name(value):
-    value = value.encode("ascii", "ignore").lower().strip().replace(" ", "-")
-    value = re.sub(r"[^\w-]", "", value)
-    return value
-
-def check_db(rows):
-
-    for candidate in rows:
-        logger.debug(candidate)
-
-        try:
-            obj, created = Candidate.objects.get_or_create(
-                candidate = candidate["candidate"],
-                defaults = {
-                    "candidate_slug": slugify_name(candidate["candidate"]),
-                    "contest": simplify_contest_name(candidate['contest']),
-                    "biofacts": candidate["biofacts"],
-                    "priorities": candidate["priorities"],
-                    "questions_url": candidate["questions_url"],
-                    "candidate_url": candidate["candidate_url"],
-                    "kpcc_qa_url": get_kpcc_qa(candidate["candidate"]),
-                }
-            )
-            if not created:
-                print "%s exists. Checking for updates..." % (candidate["candidate"])
-                #logger.debug(obj.biofacts)
-            elif created:
-                print "%s created" % (candidate["candidate"])
-        except ValueError, exception:
-            #traceback.print_exc(file=sys.stdout)
-            print "%s-%s" % (exception, candidate["candidate"])
-            logger.debug("%s-%s" % (exception, candidate["candidate"]))
-
-
-def print_to_CSV(rows):
-    headers = ['candidate','contest','biofacts','priorities','questions_url','candidate_url']
-    write_data(headers,rows)
-
-def fetch_sample_candidate():
-    """
-    As a way to test the scraper, fetches info specifically for Robert L. Cole.
-    """
-    rows = []
-    contestname = "Council Member; City of Los Angeles; District 8"
-    candidate_name = "Robert L. Cole, Jr."
-    candidate_url = "http://www.smartvoter.org/2015/03/03/ca/la/vote/cole_r/"
-    candidate_rows = fetch_candidate_info(candidate_name,candidate_url,contestname)
-    #logging.debug(candidate_rows)
 
 def fetch_all_contests(html):
     """
@@ -258,15 +131,69 @@ def capture_list(data):
     listitems = data.findAll('li')
     lst = []
     for i in listitems:
-        lst.append(i.text.encode('utf-8'))
+        lst.append(i.text)
     return lst
 
-def write_data(headers,data):
-    ofile = open('output/smartvoter.csv',"wb")
-    writer = csv.writer(ofile,delimiter=',',quotechar='"',quoting=csv.QUOTE_NONNUMERIC)
-    writer.writerow(headers)
+def filter_la(rows):
+    la_rows = []
+    for r in range(len(rows)):
+        if re.search("Los Angeles",rows[r]['contest']) and not re.search("Trustees",rows[r]['contest']):
+            la_rows.append(rows[r])
+    return la_rows
 
-    for row in data:
-        writer.writerow(row)
-    
-    ofile.close()
+def check_db(rows):
+    for candidate in rows:
+        candidate["contest"] = simplify_contest_name(candidate["contest"])
+        candidate["candidate"] = candidate["candidate"].decode(encoding='UTF-8',errors='strict')
+
+        try:
+            obj, created = Candidate.objects.get_or_create(
+                candidate = candidate["candidate"],
+                contest = candidate["contest"],
+                defaults = {
+                    "candidate_slug": slugify_name(candidate["candidate"]),
+                    "biofacts": candidate["biofacts"],
+                    "priorities": candidate["priorities"],
+                    "questions_url": candidate["questions_url"],
+                    "candidate_url": candidate["candidate_url"],
+                }
+            )
+            if not created:
+                print "%s exists. Checking for updates..." % (candidate["candidate"])
+                for x in candidate:
+                    if not candidate[x] and getattr(obj,x):
+                        print "SmartVoter's %s info for candidate %s may have been deleted." % (x,candidate["candidate"])
+                    elif candidate[x] and getattr(obj,x) and candidate[x] != getattr(obj,x):
+                        setattr(obj,x,candidate[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for candidate %s has been updated." % (x,candidate["candidate"])
+                    elif candidate[x] and not getattr(obj,x):
+                        setattr(obj,x,candidate[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for candidate %s has been updated." % (x,candidate["candidate"])
+
+            elif created:
+                print "%s created" % (candidate["candidate"])
+        except ValueError, exception:
+            #traceback.print_exc(file=sys.stdout)
+            print "%s-%s" % (exception, candidate["candidate"])
+            logger.debug("%s-%s" % (exception, candidate["candidate"]))
+
+def simplify_contest_name(contestlong):
+    # Clean up contest name
+    try:
+        conteststrings = contestlong.split(';')
+        if re.search("Council",conteststrings[0]):
+            contest = "City Council" + conteststrings[2]
+        else:
+            contest = "LAUSD School Board" + conteststrings[2]
+    except:
+        contest = contestlong
+    return contest
+
+def slugify_name(value):
+    value = value.encode("ascii", "ignore").lower().strip().replace(" ", "-")
+    value = re.sub(r"[^\w-]", "", value)
+    return value
