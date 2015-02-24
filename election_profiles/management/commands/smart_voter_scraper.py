@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from election_profiles.models import Candidate
+from election_profiles.models import Candidate, Measure
 import logging
 import csv
 import re
@@ -26,22 +26,145 @@ class Command(BaseCommand):
 
 def request_url_in(target_url):
     """
-    Looks up all contests by city, then by school district, and compiles the results into a single CSV file.
+    Looks up all contests by city, school district and local ballot measure and then
+    checks the info against the database, adding or updating as appropriate.
     """
-    contestlists = ['city','school']
-    rows = []
+    contestlists = ['city.html','school.html','meas']
+    candidaterows = []
+    measurerows = []
 
     for n in contestlists:
-        result = requests.get(target_url + n + '.html')
+        result = requests.get(target_url + n)
         content = result.content
         soup = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
-        rowcluster = fetch_all_contests(soup)
-        for row in rowcluster:
-            rows.append(row)
+        if n == 'meas':
+            rowcluster = fetch_measures(soup)
+            if rowcluster:
+                for row in rowcluster:
+                    measurerows.append(row)
+        else:
+            rowcluster = fetch_all_candidates(soup)
+            for row in rowcluster:
+                candidaterows.append(row)
 
-    check_db(filter_la(rows))
+    if candidaterows:
+        add_or_update_candidates(filter_la(candidaterows))
+    if measurerows:
+        add_or_update_measures(measurerows)
 
-def fetch_all_contests(html):
+def fetch_measures(html):
+    """
+    Collects basic info on all LA County ballot measures for March 3.
+    """
+    found = 0
+    rows = []
+    for table in html.findAll('table'):
+        tablesearch = table.findAll('table')
+        
+        for t in tablesearch:
+            if t.tr.td.text == "Measures":
+                found = 1
+                mtable = t.findPrevious('table')
+                measures = mtable.findAll('a')
+                measures_total = len(measures)
+                measure_rows = []
+
+                #Set defaults to empty as needed
+                measure_url = ""
+
+                for x in range(measures_total):
+                    if measures[x].has_key('href'):
+                        if re.search(r'suggest',measures[x]['href']):
+                            print str(measures[x]) + " ... BAD/EXCLUDE: This is not a ballot measure."
+                        else:
+                            measure_url = "http://www.smartvoter.org/2015/03/03/ca/la/meas/" + measures[x]['href']
+                            row = parse_measure(measures[x],measure_url)
+                            rows.append(row)
+                    else:
+                        row = parse_measure(measures[x],"")
+                        rows.append(row)
+
+    if found == 1:
+        return rows
+        """
+        for x in range(race_total):
+            candidate_rows = []
+            contestname = races[x].find('b').text.encode("utf-8")
+            candidatelist = races[x].findNext('ul').findAll('li')
+            for candidate in candidatelist:
+                candidate_name = candidate.find('a').text.encode("utf-8")
+                try:
+                    urlstring = candidate.find('a')['href']
+                    candidate_url = candidate_base_url + urlstring.encode(encoding='UTF-8',errors='strict')
+                except:
+                    candidate_url = "none"
+                candidate_row = fetch_candidate_info(candidate_name,candidate_url,contestname)
+                rows.append(candidate_row)
+        return rows
+        """
+    else:
+        print "No table found with info on ballot measures. Please check again."
+
+def parse_measure(m,measure_url):
+    titlestring = m.parent.text.encode("utf-8").replace("\n","")
+    titlelist = re.split("--|\.",titlestring)
+    measure_number = titlelist[0]
+    measure_name = titlelist[1].replace(";","; ")
+    city = titlelist[2]
+    measure_type = m.findNext('font', attrs={'size':'-1'}).text.encode("utf-8").replace("(","").replace(")","")
+    description = m.findNext('dd').text.encode("utf-8").replace("\n"," ")
+
+    # Create a row as dictionary and return it to the full dataset
+    row = {
+        'measure_number':measure_number,
+        'measure_name':measure_name,
+        'city':city,
+        'measure_type':measure_type,
+        'description':description,
+        'measure_url':measure_url
+        }
+    return row
+
+def add_or_update_measures(rows):
+    for measure in rows:
+        #measure["measure_number"] = measure["measure_number"].decode(encoding='UTF-8',errors='strict')
+        try:
+            obj, created = Measure.objects.get_or_create(
+                measure_number = measure["measure_number"],
+                city = measure["city"],
+                defaults = {
+                    "measure_slug": slugify_name(measure["measure_number"]),
+                    "measure_name": measure["measure_name"],
+                    "city": measure["city"],
+                    "measure_type": measure["measure_type"],
+                    "description": measure["description"],
+                    "measure_url": measure["measure_url"]
+                }
+            )
+            if not created:
+                print "%s exists. Checking for updates..." % (measure["measure_number"])
+                for x in measure:
+                    if not measure[x] and getattr(obj,x):
+                        print "SmartVoter's %s info for %s may have been deleted." % (x,measure["measure_number"])
+                    elif measure[x] and getattr(obj,x) and measure[x] != getattr(obj,x):
+                        setattr(obj,x,measure[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for %s has been updated." % (x,measure["measure_number"])
+                    elif measure[x] and not getattr(obj,x):
+                        setattr(obj,x,measure[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for %s has been updated." % (x,measure["measure_number"])
+
+            elif created:
+                print "%s created" % (measure["measure_number"])
+        except ValueError, exception:
+            #traceback.print_exc(file=sys.stdout)
+            print "%s-%s" % (exception, measure["measure_number"])
+            logger.debug("%s-%s" % (exception, measure["measure_number"]))
+
+def fetch_all_candidates(html):
     """
     Collects contest name and candidate list for each, then fetches info on 
     each candidate.
@@ -141,7 +264,7 @@ def filter_la(rows):
             la_rows.append(rows[r])
     return la_rows
 
-def check_db(rows):
+def add_or_update_candidates(rows):
     for candidate in rows:
         candidate["contest"] = simplify_contest_name(candidate["contest"])
         candidate["candidate"] = candidate["candidate"].decode(encoding='UTF-8',errors='strict')
@@ -155,7 +278,7 @@ def check_db(rows):
                     "biofacts": candidate["biofacts"],
                     "priorities": candidate["priorities"],
                     "questions_url": candidate["questions_url"],
-                    "candidate_url": candidate["candidate_url"],
+                    "candidate_url": candidate["candidate_url"]
                 }
             )
             if not created:
