@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-from election_profiles.models import Candidate, Measure
+from election_profiles.models import Candidate, Measure, Contest
 import logging
 import csv
 import re
@@ -32,6 +32,7 @@ def request_url_in(target_url):
     contestlists = ['city.html','school.html','meas']
     candidaterows = []
     measurerows = []
+    contestrows = []
 
     for n in contestlists:
         result = requests.get(target_url + n)
@@ -43,14 +44,55 @@ def request_url_in(target_url):
                 for row in rowcluster:
                     measurerows.append(row)
         else:
-            rowcluster = fetch_all_candidates(soup)
-            for row in rowcluster:
+            rowsbatch = fetch_all_candidates(soup,n)
+            for row in rowsbatch['contests']:
+                contestrows.append(row)
+            for row in rowsbatch['candidates']:
                 candidaterows.append(row)
 
     if candidaterows:
-        add_or_update_candidates(filter_la(candidaterows))
+        pass
+        #add_or_update_candidates(filter_la(candidaterows))
     if measurerows:
-        add_or_update_measures(measurerows)
+        pass
+        #add_or_update_measures(measurerows)
+    if contestrows:
+        add_or_update_contests(contestrows)
+
+def add_or_update_contests(rows):
+    for contest in rows:
+        #measure["measure_number"] = measure["measure_number"].decode(encoding='UTF-8',errors='strict')
+        try:
+            obj, created = Contest.objects.get_or_create(
+                contest_name = contest["contest_name"],
+                city = contest["city"],
+                defaults = {
+                    "contest_slug": slugify_name(contest["contest_name"]) + "-" + slugify_name(contest["city"]),
+                    "contest_url": contest["contest_url"]
+                }
+            )
+            if not created:
+                print "%s exists. Checking for updates..." % (contest["contest_name"])
+                for x in contest:
+                    if not contest[x] and getattr(obj,x):
+                        print "SmartVoter's %s info for %s may have been deleted." % (x,contest["contest_name"])
+                    elif contest[x] and getattr(obj,x) and contest[x] != getattr(obj,x):
+                        setattr(obj,x,contest[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for %s has been updated." % (x,contest["contest_name"] + " " + contest["city"])
+                    elif contest[x] and not getattr(obj,x):
+                        setattr(obj,x,contest[x])
+                        obj.change_date = timezone.now()
+                        obj.save(update_fields=[x,'change_date'])
+                        print "%s info for %s has been updated." % (x,contest["contest_name"])
+
+            elif created:
+                print "%s created" % (contest["contest_name"])
+        except ValueError, exception:
+            #traceback.print_exc(file=sys.stdout)
+            print "%s-%s" % (exception, contest["contest_name"])
+            logger.debug("%s-%s" % (exception, contest["contest_name"]))
 
 def fetch_measures(html):
     """
@@ -148,7 +190,7 @@ def add_or_update_measures(rows):
             print "%s-%s" % (exception, measure["measure_number"])
             logger.debug("%s-%s" % (exception, measure["measure_number"]))
 
-def fetch_all_candidates(html):
+def fetch_all_candidates(html,ctype):
     """
     Collects contest name and candidate list for each, then fetches info on 
     each candidate.
@@ -157,11 +199,47 @@ def fetch_all_candidates(html):
     race_total = len(races)
     candidate_base_url = "http://www.smartvoter.org/2015/03/03/ca/la/"
     
-    rows = []
+    candidaterows = []
+    contestrows = []
     
     for x in range(race_total):
+        # Gather contest info
+        contest_url = candidate_base_url + races[x]['href']
         candidate_rows = []
-        contestname = races[x].find('b').text.encode("utf-8")
+        contestlist = races[x].find('b').text.encode("utf-8").split(";")
+        cityname = ""
+        city = ""
+        if ctype == "city.html":
+            contest = contestlist[0].strip()
+            city = contestlist[1].strip()
+            if re.search(r'(Council Member|Councilmember)',contest):
+                contest = "City Council"
+        elif ctype == "school.html":
+            cityname = re.search(r'^(\w+\s\w+)',contestlist[1].strip())
+            if cityname:
+                city = "City of " + cityname.group(1)
+            contestdistrict = contestlist[1]
+            contestseat = contestlist[0]
+            if re.search(r'Los Angeles Community',contestdistrict):
+                contest = "LA Community College Board of Trustees"
+            elif re.search(r'Redondo Beach',contestdistrict):
+                contest = "Redondo Beach School Board"
+            elif re.search(r'Los Angeles Unified',contestdistrict):
+                contest = "LAUSD School Board"
+            else:
+                contest = contestdistrict + " " + contestseat
+        try:
+            if contestlist[2]:
+                contest = contest + contestlist[2]
+        except:
+            pass
+        contestrows.append({
+                'contest_name': contest,
+                'city': city,
+                'contest_url': contest_url
+            })
+        
+        # Gather candidate info
         candidatelist = races[x].findNext('ul').findAll('li')
         for candidate in candidatelist:
             candidate_name = candidate.find('a').text.encode("utf-8")
@@ -170,15 +248,17 @@ def fetch_all_candidates(html):
                 candidate_url = candidate_base_url + urlstring.encode(encoding='UTF-8',errors='strict')
             except:
                 candidate_url = "none"
-            candidate_row = fetch_candidate_info(candidate_name,candidate_url,contestname)
-            rows.append(candidate_row)
-    return rows
+            candidate_row = fetch_candidate_info(candidate_name,candidate_url,contest,city)
+            candidaterows.append(candidate_row)
+    rowsbatch = {'contests':contestrows,'candidates':candidaterows}
+    return rowsbatch
 
-def fetch_candidate_info(candidate,target_url,contest):
+def fetch_candidate_info(candidate,target_url,contest,city):
     if target_url == "none":
         row = {
             'candidate':candidate,
             'contest':contest,
+            'city':city,
             'biofacts':[],
             'priorities':[],
             'questions_url':'',

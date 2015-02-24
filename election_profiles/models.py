@@ -59,3 +59,22 @@ class Measure(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ("detail", [self.measure_slug])
+
+class Contest(models.Model):
+    now = timezone.now()
+    contest_name = models.CharField(max_length=255)
+    contest_slug = models.SlugField("Contest Slug", unique=True, max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=255)
+    contest_url = models.URLField("Link to SmartVoter contest page", max_length=1024, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True,default=now)
+    change_date = models.DateTimeField(auto_now=True,default=now)
+
+    def __unicode__(self):
+        return self.contest_name + self.city
+
+    def save(self, *args, **kwargs):
+        super(Contest, self).save(*args, **kwargs)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("detail", [self.contest_slug])
