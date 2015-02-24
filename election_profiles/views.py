@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic import View, ListView, DetailView
 from django.db.models import Q, Avg, Max, Min, Sum, Count
-from election_profiles.models import Candidate
+from election_profiles.models import Candidate, Measure
 from bakery.views import BuildableListView, BuildableDetailView
 import datetime
 import logging
@@ -40,6 +40,7 @@ class InitialListView(BuildableListView):
             "config_object": config["config_object"],
             "display_races": display_races,
             "objects": queryset,
+            "measures": Measure.objects.all(),
         }
 
 

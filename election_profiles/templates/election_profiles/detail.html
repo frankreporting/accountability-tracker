@@ -26,7 +26,6 @@
     <link href="http://projects.scpr.org/static/static-files/v3-dependencies/css/jquery-ui.1.10.3.css" rel="stylesheet" type="text/css" media="all" />
     <link href="http://projects.scpr.org/static/static-files/css/jquery-alerts/jquery.alerts.css" rel="stylesheet" type="text/css" media="all" />
     <link href="..{% static 'css/main-foundation-style-v3.css' %}" media="screen" rel="stylesheet" type="text/css" />
-
     <link href="..{% static 'css/election-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
@@ -80,6 +79,11 @@
                     {% if object.questions_url %}
                         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                             <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ object.questions_url }}" target="_blank"> Q&amp;A with SmartVoter</a></p>
+                        </div>
+                    {% endif %}
+                    {% if object.kpcc_qa_url %}
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ object.kpcc_qa_url }}" target="_blank"> Q&amp;A with KPCC</a></p>
                         </div>
                     {% endif %}
                 </div>

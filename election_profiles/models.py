@@ -15,13 +15,18 @@ logging.basicConfig(
 )
 
 class Candidate(models.Model):
+    now = timezone.now()
     candidate = models.CharField(max_length=255)
     candidate_slug = models.SlugField("Candidate Slug", unique=True, max_length=255, null=True, blank=True)
     contest = models.CharField(max_length=255)
+    city = models.CharField(max_length=255,blank=True,null=True)
     biofacts = SeparatedValuesField(null=True, blank=True)
     priorities = SeparatedValuesField(null=True, blank=True)
     questions_url = models.URLField("Link to candidate Q&A", max_length=1024, null=True, blank=True)
     candidate_url = models.URLField("Link to candidate", max_length=1024, null=True, blank=True)
+    kpcc_qa_url = models.URLField("Link to KPCC Q&A", max_length=1024, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True,default=now)
+    change_date = models.DateTimeField(auto_now=True,default=now)
 
     def __unicode__(self):
         return self.candidate
@@ -32,3 +37,25 @@ class Candidate(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ("detail", [self.candidate_slug])
+
+class Measure(models.Model):
+    now = timezone.now()
+    measure_number = models.CharField(max_length=50)
+    measure_name = models.CharField(max_length=255)
+    measure_slug = models.SlugField("Measure Slug", unique=True, max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=255)
+    measure_type = models.CharField(max_length=255)
+    description = models.CharField(max_length=1024)
+    measure_url = models.URLField("Link to SmartVoter analysis", max_length=1024, null=True, blank=True)
+    create_date = models.DateTimeField(auto_now_add=True,default=now)
+    change_date = models.DateTimeField(auto_now=True,default=now)
+
+    def __unicode__(self):
+        return self.measure_number
+
+    def save(self, *args, **kwargs):
+        super(Measure, self).save(*args, **kwargs)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("detail", [self.measure_slug])

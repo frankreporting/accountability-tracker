@@ -85,6 +85,7 @@
                     <li><a href="#9">LAUSD School Board District 3</a></li>
                     <li><a href="#10">LAUSD School Board District 5</a></li>
                     <li><a href="#11">LAUSD School Board District 7</a></li>
+                    <li><a href="#12">LA City Ballot Measures</a></li>
                 </ul>
             </div>
         </div>
@@ -142,11 +143,48 @@
                                         <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.questions_url }}" target="_blank"> Q&amp;A with SmartVoter</a></p>
                                     </div>
                                 {% endif %}
+                                {% if candidate.kpcc_qa_url %}
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.kpcc_qa_url }}" target="_blank"> Q&amp;A with KPCC</a></p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 {% endif %}
             {% endfor %}
+        {% endfor %}
+        <h3 id="12">LA City Ballot Measures</h3>
+        {% for measure in object_list.measures %}
+            {% if measure.city == "City of Los Angeles" %}
+                <div class="row" id="representative-container">
+                    <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9" id="representative-bio">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <h4>{{ measure.measure_number }}</h4>
+                            </div>
+                        </div>
+                        <div style="width:100%;float:left;">
+                            <h6>{{ measure.measure_name }}</h6>
+                            {% if measure.measure_type %}
+                                <p class="credit">{{ measure.measure_type }}</p>
+                            {% endif %}
+                            {% if measure.description %}
+                                <p>{{ measure.description }}</p>
+                            {% else %}
+                                <p><em>Description not available</em></p>
+                            {% endif %}
+                        </div>
+                        <div class="row" style="clear:left;">
+                            {% if measure.measure_url %}
+                                <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                    <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ measure.measure_url }}" target="_blank">Analysis at SmartVoter.org</a></p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
@@ -155,5 +193,5 @@
     <script>
         window.appConfig = {% app_config_object object_list.config_object %};
     </script>
-    <script src="{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
+    <script src=".{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
 {% endblock %}
