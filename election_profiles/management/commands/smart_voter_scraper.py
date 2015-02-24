@@ -86,22 +86,6 @@ def fetch_measures(html):
 
     if found == 1:
         return rows
-        """
-        for x in range(race_total):
-            candidate_rows = []
-            contestname = races[x].find('b').text.encode("utf-8")
-            candidatelist = races[x].findNext('ul').findAll('li')
-            for candidate in candidatelist:
-                candidate_name = candidate.find('a').text.encode("utf-8")
-                try:
-                    urlstring = candidate.find('a')['href']
-                    candidate_url = candidate_base_url + urlstring.encode(encoding='UTF-8',errors='strict')
-                except:
-                    candidate_url = "none"
-                candidate_row = fetch_candidate_info(candidate_name,candidate_url,contestname)
-                rows.append(candidate_row)
-        return rows
-        """
     else:
         print "No table found with info on ballot measures. Please check again."
 
@@ -110,7 +94,7 @@ def parse_measure(m,measure_url):
     titlelist = re.split("--|\.",titlestring)
     measure_number = titlelist[0]
     measure_name = titlelist[1].replace(";","; ")
-    city = titlelist[2]
+    city = titlelist[2].strip()
     measure_type = m.findNext('font', attrs={'size':'-1'}).text.encode("utf-8").replace("(","").replace(")","")
     description = m.findNext('dd').text.encode("utf-8").replace("\n"," ")
 
