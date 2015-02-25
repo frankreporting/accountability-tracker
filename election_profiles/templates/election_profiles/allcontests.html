@@ -125,6 +125,7 @@
 {% block super_js %}
     <script>
         window.appConfig = {% app_config_object object_list.config_object %};
+        window.appConfig.embed_this = false;
     </script>
     <script src="..{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
 {% endblock %}
