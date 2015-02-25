@@ -51,11 +51,9 @@ def request_url_in(target_url):
                 candidaterows.append(row)
 
     if candidaterows:
-        pass
-        #add_or_update_candidates(filter_la(candidaterows))
+        add_or_update_candidates(filter_la(candidaterows))
     if measurerows:
-        pass
-        #add_or_update_measures(measurerows)
+        add_or_update_measures(measurerows)
     if contestrows:
         add_or_update_contests(contestrows)
 
@@ -269,9 +267,9 @@ def fetch_candidate_info(candidate,target_url,contest,city):
         result = requests.get(target_url)
         content = result.content
         soup = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
-        return parse_fields_from(soup,candidate,contest,target_url)
+        return parse_fields_from(soup,candidate,contest,target_url,city)
 
-def parse_fields_from(html,candidate,contest,candidate_url):
+def parse_fields_from(html,candidate,contest,candidate_url,city):
     """
     Collects the following info: biographical highlights, top priorities, Q&A
     """
@@ -310,7 +308,8 @@ def parse_fields_from(html,candidate,contest,candidate_url):
         'biofacts':biofacts,
         'priorities':priorities,
         'questions_url':questions_url,
-        'candidate_url':candidate_url
+        'candidate_url':candidate_url,
+        'city':city
         }
     return row
 
@@ -324,7 +323,8 @@ def capture_list(data):
 def filter_la(rows):
     la_rows = []
     for r in range(len(rows)):
-        if re.search("Los Angeles",rows[r]['contest']) and not re.search("Trustees",rows[r]['contest']):
+        #if re.search("Los Angeles",rows[r]['contest']):
+        if rows[r]['city'] == "City of Los Angeles":
             la_rows.append(rows[r])
     return la_rows
 
@@ -342,7 +342,8 @@ def add_or_update_candidates(rows):
                     "biofacts": candidate["biofacts"],
                     "priorities": candidate["priorities"],
                     "questions_url": candidate["questions_url"],
-                    "candidate_url": candidate["candidate_url"]
+                    "candidate_url": candidate["candidate_url"],
+                    "city": candidate["city"]
                 }
             )
             if not created:

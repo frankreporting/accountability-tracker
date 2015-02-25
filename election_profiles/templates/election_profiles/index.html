@@ -36,9 +36,9 @@
                 <h1>{{ object_list.article_content.display_headline }}</h1>
             </div>
 
-            <hr>
+            <p><span class="credits">{{ object_list.article_content.display_credits|safe }} | <span class="pubdate">{{ object_list.article_content.display_date|safe }}</p>
 
-            <h5>See who's appearing on the ticket on March 3, and find out more about the candidates running in your district.</h5>
+            <h6>See who's appearing on the ticket on March 3, and find out more about the candidates running in your district.</h6>
 
             <p><em>Source: The information on this page was provided by the candidates themselves via <a href="http://www.smartvoter.org/" target="blank">SmartVoter.org</a>.</em></p>
 
@@ -71,7 +71,7 @@
                 {% endif %}
             </div>
             -->
-            <div class="dropdown">
+            <div class="dropdown" style="float:left;">
                 <button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="dLabel" type="button">Jump to a Specific Race<span class="caret"></span></button>
                 <ul aria-labelledby="dLabel" class="dropdown-menu" role="menu">
                     <li><a href="#1">LA City Council District 2</a></li>
@@ -85,7 +85,21 @@
                     <li><a href="#9">LAUSD School Board District 3</a></li>
                     <li><a href="#10">LAUSD School Board District 5</a></li>
                     <li><a href="#11">LAUSD School Board District 7</a></li>
-                    <li><a href="#12">LA City Ballot Measures</a></li>
+                    <li><a href="#12">LA Community College Board Office 1</a></li>
+                    <li><a href="#13">LA Community College Board Office 3</a></li>
+                    <li><a href="#14">LA Community College Board Office 5</a></li>
+                    <li><a href="#15">LA Community College Board Office 7</a></li>
+                    <li><a href="#16">LA City Ballot Measures</a></li>
+                </ul>
+            </div>
+            <div class="dropdown" style="float:right;">
+                <button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="dLabel" type="button">Other City Elections<span class="caret"></span></button>
+                <ul aria-labelledby="dLabel" class="dropdown-menu" role="menu">
+                    {% for city in object_list.display_cities %}
+                        {% if city != "City of Los Angeles" %}
+                            <li><a href="cities/index.html#{{ forloop.counter }}">{{ city }}</a></li>
+                        {% endif %}
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -154,7 +168,7 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
-        <h3 id="12">LA City Ballot Measures</h3>
+        <h3 id="16">LA City Ballot Measures</h3>
         {% for measure in object_list.measures %}
             {% if measure.city == "City of Los Angeles" %}
                 <div class="row" id="representative-container">
