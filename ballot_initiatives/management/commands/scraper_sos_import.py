@@ -86,7 +86,7 @@ def request_url_in(base_url):
 	rows = []
 
 	for s in init_status:
-		result = requests.get(base_url+s+'.htm')
+		result = requests.get(base_url+s+'/')
 		content = result.content
 		soup = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
 		data = parse_based_on_status(soup,s)
@@ -118,7 +118,8 @@ def request_url_in(base_url):
 
 
 def parse_based_on_status(html,init_status):
-	data_block = html.find(id="centercontent")
+	data_block = html.find(id="mainCont")
+	logger.debug(data_block)
 	if init_status == "qualified-ballot-measures":
 		rows = parse_qualified_init_data(data_block,init_status)
 	elif init_status == "attorney-general-information":
