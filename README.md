@@ -1,7 +1,7 @@
 accountability_tracker
 ======================
 
-SCPR repository to house an iterative Django project that will store and provide data for a series of projects dealing with accountability in the political process.
+[SCPR](http://www.scpr.org/) repository to house an iterative Django project that will store and provide data for a series of projects dealing with accountability in the political process.
 
 Documentation
 =============
@@ -38,13 +38,22 @@ Documentation
         * Start the project's development server
 
 * Applications
-    * **Maplight Finance**
+
+    * ~~**ballot_initiatives**~~
+        * ~~[Application](/ballot_initiatives)~~
+        * ~~[Documentation]()~~
+
+    * ~~**cali_water**~~
+        * [Application](/cali_water)
+        * ~~[Documentation]()~~
+
+    * **election_profiles**
+        * [Application](/election_profiles)
+        * ~~[Documentation]()~~
+
+    * **maplight_finance**
         * [Application](/maplight_finance)
         * [Documentation](https://github.com/SCPR/accountability-tracker/wiki/Maplight-Finance)
-
-    * ~~Initiative Tracker~~
-        * ~~[Application]()~~
-        * ~~[Documentation]()~~
 
 * Project Development & Scoping
     * [Code: Scraping Reference](https://github.com/SCPR/accountability-tracker/wiki/Code:-Scraping-Reference)
