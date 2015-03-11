@@ -1,0 +1,160 @@
+{% extends "cali_water/base.html" %}
+{% load static %}
+{% load cali_water_template_tags %}
+
+<!-- begin meta -->
+{% block title %}Where is California water use decreasing?{% endblock %}
+{% block robots %}{% endblock %}
+{% block description %}Regulations passed by the State Water Resources Control Board last year required urban water suppliers to set mandatory conservation rules in their communities – and required those suppliers to report consumption data, to help illustrate how well the rules are working.{% endblock %}
+{% block keywords %}drought, state water resources control board, california{% endblock %}
+{% block og_title %}Where is water use decreasing?{% endblock %}
+{% block og_site_name %}KPCC{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_url %}http://projects.scpr.org/static/applications/monthly-water-use{% endblock %}
+{% block og_description %}Regulations passed by the State Water Resources Control Board last year required urban water suppliers to set mandatory conservation rules in their communities – and required those suppliers to report consumption data, to help illustrate how well the rules are working.{% endblock %}
+{% block twitter_url %}http://projects.scpr.org/static/applications/monthly-water-use{% endblock %}
+{% block twitter_title %}Where is California water use decreasing?{% endblock %}
+{% block twitter_description %}Regulations passed by the State Water Resources Control Board last year required urban water suppliers to set mandatory conservation rules in their communities – and required those suppliers to report consumption data, to help illustrate how well the rules are working.{% endblock %}
+{% block facebook_encoded_share_url %}http://projects.scpr.org/static/applications/monthly-water-use{% endblock %}
+{% block twitter_share_text %}Each month, California water suppliers report residential water use.{% endblock %}
+{% block twitter_encoded_share_url %}http://projects.scpr.org/static/applications/monthly-water-use{% endblock %}
+<!-- end meta -->
+
+{% block super_css %}
+    <link href="{% static 'css/reset.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="http://projects.scpr.org/static/static-files/v3-dependencies/css/jquery-ui.1.10.3.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="http://projects.scpr.org/static/static-files/css/jquery-alerts/jquery.alerts.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="{% static 'css/main-foundation-style-v3.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block header_js %}{% endblock %}
+
+{% block data_details %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="content-article">
+            <div class="headlines">
+                <h4 class="kicker">{{ object_list.article_content.kicker }}</h4>
+                <h1>{{ object_list.article_content.display_headline }}</h1>
+            </div>
+            <div class="about collapse">
+                <p><span class="credits">{{ object_list.article_content.display_credits|safe }}</span> | <span class="pubdate">{{ object_list.article_content.display_date|safe }}</span></p>
+                {{ object_list.article_content.display_text|safe }}
+            </div>
+            <div class="sources collapse">
+                <p>
+                    {% if object_list.about_content.sources %}
+                        <strong>Sources</strong>: {{ object_list.about_content.sources|safe }}
+                    {% endif %}
+                    {% if object_list.about_content.open_source %}
+                        <strong>Built using</strong>: {{ object_list.about_content.open_source|safe }}
+                    {% endif %}
+                    {% if object_list.about_content.data_download %}
+                        <strong>Download</strong>: {{ object_list.about_content.data_download|safe }}
+                    {% endif %}
+                    {% if object_list.about_content.github_link %}
+                        View on <a href="{{ object_list.about_content.github_link|safe }}" target="_blank">GitHub</a>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="buttons btn-group btn-group-justified">
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".about"><span class="about glyphicon glyphicon-chevron-down"></span>  About</a>
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".sources"><span class="sources glyphicon glyphicon-chevron-down"></span>  Sources</a>
+                {% if object_list.about_content.read_more_link %}
+                    <a class="btn btn-primary" href="{{ object_list.about_content.read_more_link }}"><span class="glyphicon glyphicon-link"></span> Read more</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block data_visuals %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="row data-legend">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="jumbotron">
+                    <noscript>Please enable JavaScript to view this interactive.</noscript>
+                    <h4 class="text-center">Choose a water supplier</h4>
+                    <div id="content-action-bar">
+                        <select id="water-supplier-list" class="form-control">
+                            <option>-- Select by hydrological region --</option>
+                            {% for report in object_list.option_list %}
+                                <optgroup label="{{ report.hydrologic_region }}">
+                                {% for supplier in report.suppliers %}
+                                    <option value="..{% url "water-supplier-detail" supplier.supplier_slug %}">{{ supplier.supplier_name|title }}</option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="lead"><strong>About the data</strong>: These charts show urban water suppliers in Southern California that saw daily water use per resident rise and fall by the most and least. They cover the most recent reporting period &mdash; {{ object_list.target_report|date:"F Y" }} &mdash; and are compared to the baseline measure from {{ object_list.target_report|get_last_year|date:"F Y" }}. Since the gallons of water used per person per day measurement does not take into account rainfall, temperature, humidity and population density, the <a href="http://www.waterboards.ca.gov/waterrights/">State Water Resources Control Board</a> discourages comparisons between water suppliers.</p>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="decrease">
+            <header class="charts">
+                <h5 class="text-center">South Coast Decreased use</h5>
+                <p class="small-writing text-center">{{ object_list.target_report|date:"F Y" }} to {{ object_list.target_report|get_last_year|date:"F Y" }}</p>
+            </header>
+            <section class="display">
+                <ol>
+                    {% for report in object_list.largest_decrease %}
+                        {% if report.percent_change < 0 %}
+                            <li>
+                                <p class="text-right">
+                                    <a href="..{% url "water-supplier-detail" report.supplier_name.supplier_slug %}">{{ report.supplier_name|title }}</a>
+                                </p>
+                                <dl class="clearfix">
+                                    <dt></dt>
+                                    <dd class="neg" style="width: {{ report.percent_change|neg_to_posi|floatformat:2 }}%;">
+                                        <span>{{ report.percent_change|floatformat:2 }}%</span>
+                                    </dd>
+                                </dl>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+            </section>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="increase">
+            <header class="charts">
+                <h5 class="text-center">South Coast Increased use</h5>
+                <p class="small-writing text-center">{{ object_list.target_report|date:"F Y" }} to {{ object_list.target_report|get_last_year|date:"F Y" }}</p>
+            </header>
+            <section class="display">
+                <ol>
+                    {% for report in object_list.largest_increase %}
+                        {% if report.percent_change > 0 %}
+                            <li>
+                                <p class="text-left">
+                                    <a href="..{% url "water-supplier-detail" report.supplier_name.supplier_slug %}">{{ report.supplier_name|title }}</a>
+                                </p>
+                                <dl class="clearfix">
+                                    <dt></dt>
+                                    <dd class="pos" style="width: {{ report.percent_change|neg_to_posi|floatformat:2 }}%;">
+                                        <span>{{ report.percent_change|floatformat:2 }}%</span>
+                                    </dd>
+                                </dl>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+            </section>
+        </div>
+    </div>
+{% endblock %}
+
+{% block super_js %}
+    <script>
+        window.appConfig = {% app_config_object object_list.config_object %};
+        document.getElementById("water-supplier-list").onchange = function() {
+            var selectedOption = this.value;
+            window.location.href = selectedOption;
+        }
+    </script>
+    <script src="{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
+{% endblock %}
