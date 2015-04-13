@@ -1,3 +1,8 @@
+"""
+NEXT UP! Need to refactor so ALL beautifulsoup parsing happens at the init_data level, and then
+at the individual info parse level (title info, summary info, etc.), you're just parsing TEXT, so 
+that they can be universal.
+"""
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from optparse import make_option
@@ -49,8 +54,10 @@ class ScrapedInit(object):
     id_note = ""
     title = ""
     summary = ""
+    fiscal_impact = ""
     prop_num = ""
     proponent = ""
+    proponent_search = ""
     email = ""
     phone = ""
     date_sum = ""
@@ -66,49 +73,60 @@ class ScrapedInit(object):
     sigs_req = ""
     full_text_link = ""
     sig_count_link = ""
+    sig_note = ""
     fiscal_impact_link = ""
     proposition_type = ""
 
-    def description(self):
-        print "<Scraped Initiative: ag_id = '%s' | sos_id = '%s' | alt_id = '%s' | id_note = '%s' | title = '%s' | summary = '%s' | prop_num = '%s' | proponent = '%s' | email = '%s' | phone = '%s' | date_sum = '%s' | date_sum_estimate = '%s' | date_circulation_deadline = '%s' | date_qualified = '%s' | date_failed = '%s' | date_sample_due = '%s' | date_raw_count_due = '%s' | date_sample_update = '%s' | election = '%s' | status = '%s' | sigs_req = '%s' | full_text_link = '%s' | sig_count_link = '%s' | fiscal_impact_link = '%s' | proposition_type = '%s'>" % (self.ag_id, self.sos_id, self.alt_id, self.id_note, self.title, self.summary, self.prop_num, self.proponent, self.email, self.phone, self.date_sum, self.date_sum_estimate, self.date_circulation_deadline, self.date_qualified, self.date_failed, self.date_sample_due, self.date_raw_count_due, self.date_sample_update, self.election, self.status, self.sigs_req, self.full_text_link, self.sig_count_link, self.fiscal_impact_link, self.proposition_type)
+    def __str__(self):
+        return "<Scraped Initiative: ag_id = '%s' | sos_id = '%s' | alt_id = '%s' | id_note = '%s' | title = '%s' | summary = '%s' | fiscal_impact = '%s' | prop_num = '%s' | proponent = '%s' | proponent_search = '%s' | email = '%s' | phone = '%s' | date_sum = '%s' | date_sum_estimate = '%s' | date_circulation_deadline = '%s' | date_qualified = '%s' | date_failed = '%s' | date_sample_due = '%s' | date_raw_count_due = '%s' | date_sample_update = '%s' | election = '%s' | status = '%s' | sigs_req = '%s' | full_text_link = '%s' | sig_count_link = '%s' | sig_note = '%s' | fiscal_impact_link = '%s' | proposition_type = '%s'>" % (self.ag_id, self.sos_id, self.alt_id, self.id_note, self.title, self.summary, self.fiscal_impact, self.prop_num, self.proponent, self.proponent_search, self.email, self.phone, self.date_sum, self.date_sum_estimate, self.date_circulation_deadline, self.date_qualified, self.date_failed, self.date_sample_due, self.date_raw_count_due, self.date_sample_update, self.election, self.status, self.sigs_req, self.full_text_link, self.sig_count_link, self.sig_note, self.fiscal_impact_link, self.proposition_type)
 
 
 ### SHARED SCRAPER FUNCTIONS
 def request_url_in(url,init_type,site):
     result = requests.get(url)
-    if result.status_code == 200:
+    if result.status_code != 200:
         logger.debug("ERROR: There was a problem trying to retrieve the page for initiatives '%s' on the %s." % (init_type,site))
     else:
         content = result.content
         soup = BeautifulSoup(content, convertEntities=BeautifulSoup.HTML_ENTITIES)
         return soup
 
-def check_if_exists_or_has_new_info():
-    pass
-
-def decide_whether_to_update():
-    pass
-
-def update_existing():
-    pass
-
-def create_and_save():
-    pass
-
 ### SCRAPE SEC STATE SITE
 def scrape_sos():
     site = "Secretary of State's website"
     base_url = "http://www.sos.ca.gov/elections/ballot-measures/"
-    sub_urls = ["qualified-ballot-measures","pending-signature-verification","failed-to-qualify","attorney-general-information","cleared-for-circulation"]
+    sub_urls = [
+        {
+            "status":"qualified-ballot-measures", 
+            "urlstr":"qualified-ballot-measures"
+        },
+        {
+            "status":"pending-signature-verification", 
+            "urlstr":"initiative-and-referendum-status/initiatives-and-referenda-pending-signature-verification"
+        },
+        {
+            "status":"failed-to-qualify", 
+            "urlstr":"initiative-and-referendum-status/failed-qualify"
+        },
+        {
+            "status":"attorney-general-information",
+            "urlstr":"attorney-general-information"
+        },
+        {
+            "status":"cleared-for-circulation", 
+            "urlstr":"initiative-and-referendum-status/initiatives-referenda-cleared-circulation"
+        }
+    ]
     for s in sub_urls:
-        soup = request_url_in(base_url + s,s,site)
-        if s == "qualified-ballot-measures":
-            parse_qualified_init_data(soup,s)
-        #elif s == "attorney-general-information":
+        if s["status"] == "qualified-ballot-measures":
+            soup = request_url_in(base_url + s["urlstr"],s["status"],site)
+            parse_qualified_init_data(soup,s["status"])
+        elif s["status"] == "attorney-general-information":
+            pass
             #parse_pendingAG_init_data(soup,s)
         else:
-            #parse_nonqualified_init_data(soup,s)
-            pass
+            soup = request_url_in(base_url + s["urlstr"],s["status"],site)
+            parse_nonqual_init_data(soup,s["status"])
 
 def parse_qualified_init_data(html,init_status):
     data_block = html.find(id="mainCont")
@@ -126,174 +144,335 @@ def parse_qualified_init_data(html,init_status):
 
     # Get props
     for p in range(len(props)):
-        title_block = props[p]
-        prop = get_qualified_init_details(data_block,init_status,title_block)
-        logger.debug(prop.description())
+        id_block = props[p]
+        prop = get_qualified_init_details(init_status,id_block)
+        logger.debug(prop)
+
+def parse_nonqual_init_data(html,init_status):
+    data_block = html.find(id="mainCont")
+    props = data_block.findAll("div",{"id": True})
+    
+    # Get props
+    for p in props:
+        id_block = p
+        prop = get_nonqual_init_details(init_status,id_block)
+        logger.debug(prop)
 
 
+def parse_title_info(info):
+    """
+    captures initiative title and prop number depending on context; not tested on initiatives
+    with prop number yet; id_note needs to be added if/when a prop on Sec State site uses it
+    """
+    title_data = {"title":"","type":"","prop_num":""}
+    if re.search(r"(.*)\(PDF\)",info):
+        clean = re.search(r"(.*)\(PDF\)",info)
+        split = clean.group(1).split(". ")
+    else:
+        split = info.split(". ")
+    lastitem = len(split) - 1
+    if lastitem > 0 and re.search(r'Initiative|Amendment',split[lastitem]):
+        title_data["type"] = split[lastitem]
+        split.pop()
+        title_data["title"] = '. '.join(split) + '.'
+    elif lastitem == 0 and re.search(r'[Rr]{1}eferendum',split[0]):
+        title_data["type"] = "Referendum"
+        title_data["title"] = split[0]
+    elif lastitem == 0 and not re.search(r'referendum',split[0]):
+        title_data["title"] = split[0]
+    elif re.search("Proposition",split[0]):
+        prop_info = re.findall("Proposition [0-9]+",info)[0]
+        title_data["prop_num"] = re.findall("[0-9]+",prop_info)[0]
+    else:
+        title_data["title"] = '. '.join(split) + '.'
+    return title_data
 
-def get_qualified_init_details(data_block,init_status,title_block):
+def parse_date_info(info):
+    """
+    captures key dates and signature count info
+    """
+    date_data = {"date_qualified":"","date_circulation_deadline":""}
+    info = info.split(":")
+    if info[0] == "Qualified":
+        date_data["date_qualified"] = info[1]
+    return date_data
+
+def parse_proponent_info(info):
+    """
+    captures proponent name(s), plus email and phone number where provided
+    """
+    pro_data = {"email":"","phone":"","proponent":"","proponent_search":""}
+    try:
+        email_test = info.findAll("a")
+    except:
+        email_test = False
+    if email_test:
+        pro_data["email"] = email_test[0].text.encode("utf-8")
+        proponent_str = info.text.encode("utf-8").replace(pro_data["email"],"").strip()
+    else:
+        proponent_str = info
+    phone_test = re.search(r'(\([0-9]{3}\)\s?[0-9]{3}\-[0-9]{4})',proponent_str)
+    if phone_test:
+        pro_data["phone"] = phone_test.group(1)
+        proponent_str2 = proponent_str.replace(pro_data["phone"],"").strip()
+    else:
+        proponent_str2 = proponent_str
+    pro_data["proponent"] = proponent_str2
+    
+    # Separate multiple proponent names to enable searching by name later
+    proponents = []
+    co_test = re.search(r'[Cc]/[Oo]',proponent_str2)
+    comma_test = re.search(',',proponent_str2)
+    and_test = re.search(r' and ',proponent_str2)
+    if co_test:
+        names = re.compile(r'[Cc]/[Oo]').split(proponent_str2)
+        for name in names:
+            proponents.append(name.strip())
+    else:
+        proponents.append(proponent_str2)
+    for name in proponents:
+        if comma_test:
+            names = name.split(",")
+            for n in names:
+                proponents.append(n.strip())
+    for name in proponents:
+        if and_test:
+            names = name.split(" and ")
+            for n in names:
+                proponents.append(n.strip())
+    deletions = []
+    for p in range(len(proponents)):
+        if re.match(r'[Jj]r[\.]?|[Ss]r[\.]?|^[Ii]+$',proponents[p]):
+            #suffix = proponents.pop(p)
+            proponents[p-1] += ", " + proponents[p]
+            deletions.append(p)
+    for d in deletions:
+        del proponents[d]
+    first = True
+    for p in proponents:
+        if first:
+            pro_data["proponent_search"] = p
+            first = False
+        else:
+            pro_data["proponent_search"] += "|" + p
+    return pro_data
+
+def parse_summary_info(info):
+    """
+    captures summary and link to full text, plus brief fiscal impact statement if present
+    """
+    sum_data = {"summary":"","full_text_link":"","fiscal_impact":""}
+    try:
+        sum_data["full_text_link"] = info.a["href"]
+    except:
+        pass
+    try:
+        sum_block = info.text.encode("utf-8")
+    except:
+        sum_block = info
+    fiscal_test = re.search('Summary of estimate by Legislative Analyst',sum_block)
+    if fiscal_test:
+        parse_summary = re.search(r'^(.*)(Summary of estimate by Legislative Analyst.*$)',sum_block)
+        summary = parse_summary.group(1).strip()
+        sum_data["fiscal_impact"] = remove_summary_parentheticals(parse_summary.group(2))
+    else:
+        summary = remove_summary_parentheticals(sum_block)
+    sum_data["summary"] = summary
+
+    ### WHERE I LEFT OFF: Next need to clean up summary by removing (Full Text) etc. and populate sum_data
+    #logger.debug(summary)
+    return sum_data
+
+def remove_summary_parentheticals(text):
+    ag_id_remover = re.search(r'(.*)(\([0-9]{2}\-[0-9]{4}.*\))',text)
+    try:
+        if ag_id_remover.group(2):
+            text = ag_id_remover.group(1)
+    except:
+        pass
+    full_text_link_remover = re.search(r'(.*)(\(Full Text\))',text)
+    try:
+        if full_text_link_remover.group(2):
+            text = full_text_link_remover.group(1)
+    except:
+        pass
+    return text.strip()
+
+def parse_id_info(sos_id,info):
+    id_data = {"sos_id":"", "ag_id":"", "sig_count_link":"", "date_sample_update":"", "sig_note":""}
+    try:
+        id_data["sos_id"] = sos_id
+    except:
+        pass
+    agmatch = re.search(r'[0-9]{2}\-[0-9]{4}',info.text)
+    if agmatch:
+        try:
+            id_data["ag_id"] = agmatch.group(0)
+        except:
+            pass
+    try:
+        if info.a:
+            id_data["sig_count_link"] = info.a["href"]
+            sig_block = info.a.text.encode("utf-8").split("-")
+            id_data["sig_note"] = sig_block[0].strip()
+            sample_date = re.search(r'([0-9]{1,2}/[0-9]{1,2}/[0-9]+)',sig_block[1].strip())
+            id_data["date_sample_update"] = sample_date.group(1)
+            # May need to adjust later to assess type of date based on language...sample update, or sample due date, etc.?
+    except:
+        pass
+    return id_data
+
+def get_init_by_id():
+    pass
+
+def get_init_by_alt_id():
+    pass
+
+def get_init_without_id():
+    pass
+
+def get_nonqual_init_details(init_status,id_block):
     prop = ScrapedInit()
     prop.status = init_status
 
-    # Determine type of initiative we're dealing with and handle accordingly...
+    prop_details = [re.sub(r'<.*?>','',x) for x in str(id_block.findNext("p")).split("<br />")]
     try:
-        # PROPS THAT CLEARLY HAVE SOS_ID
-        pid = title_block["id"]
-        pidmatch = re.match(r'[0-9]{4}',pid)
+        pidmatch = re.match(r'[0-9]{4}',prop_details[0])
         if pidmatch:
-            try: 
-                prop.sos_id = pidmatch.group()
-            except:
-                pass
-            agmatch = re.search(r'[0-9]{2}\-[0-9]{4}',title_block.text)
-            if agmatch:
-                try:
-                    prop.ag_id = agmatch.group(0)
-                except:
-                    pass
-
-
-        # PROPS THAT DON'T HAVE CLEAR SOS_ID
+            id_info = parse_id_info(pidmatch.group(),id_block)
         else:
-            try:
-                prop.alt_id = pid
-            except:
-                pass
+            id_info = parse_id_info("",)
     except:
-        pmatch = re.match(r'^\w+\s[0-9]+',title_block.text)
-        try:
-            prop.alt_id = pmatch.group()
-        except:
-            pass
-    election_text = re.match(r'^\w+\s[0-9]+',title_block.findPrevious("h2").text)
+        pass
+
+
+    ## STORE DATA
+    # Store id info
     try:
-        prop.election = election_text.group()
+        prop.sos_id = id_info["sos_id"]
+        prop.ag_id = id_info["ag_id"]
+        prop.sig_count_link = id_info["sig_count_link"]
+        prop.sig_note = id_info["sig_note"]
+        prop.date_sample_update = id_info["date_sample_update"]
     except:
         pass
 
     return prop
 
-    """
-    # Parse prop id line based on all possible scenarios
-    prop = data.find("p",{"id": prop_id})
-
-    # For all inits/referrals before prop_num assigned...
-    if not re.search("prop",prop["id"]):
-        sos_id = prop["id"]
-    if re.search("[0-9]{2}-[0-9]{4}",prop.text):
-        ag_id = re.findall("[0-9]{2}-[0-9]{4}",prop.text)[0]
-
-    #Special handling for props without title contained in html class "prop-title" or "text-strong"
+def get_qualified_init_details(init_status,id_block):
+    prop = ScrapedInit()
+    prop.status = init_status
+    election_text = re.match(r'^\w+\s[0-9]+',id_block.findPrevious("h2").text)
     try:
-        if prop.findNext("p")["class"] == "text-strong" or prop.findNext("p")["class"] == "prop-title":
-            initiative_title_block = prop.findNext("p")
-            initiative_title = initiative_title_block.text.encode("utf-8")
-            if initiative_title_block.a:
-                full_text_link = initiative_title_block.a["href"]
-        elif prop.findNext("p").findNext("p")["class"] == "text-strong" or prop.findNext("p").findNext("p")["class"] == "prop-title":
-            initiative_title_block = prop.findNext("p").findNext("p")
-            initiative_title = initiative_title_block.text.encode("utf-8")
-            if initiative_title_block.a:
-                full_text_link = initiative_title_block.a["href"]
-        else:
-            pass
+        prop.election = election_text.group()
     except:
         pass
-    if not initiative_title:
-        initiative_title = prop.text.encode("utf-8")
-        if prop.a:
-            full_text_link = prop.a["href"]
+
+    # Determine type of initiative we're dealing with and handle remaining info accordingly...
+    try:
+        ## PROPS THAT HAVE CLEAR SOS_ID
+        pid = id_block["id"]
+        pidmatch = re.match(r'[0-9]{4}',pid)
+        if pidmatch:
+            try: 
+                id_info = parse_id_info(pidmatch.group(),id_block)
+            except:
+                pass
+            try:
+                title_info = parse_title_info(id_block.findNext("p").text.encode("utf-8"))
+            except:
+                pass
+            try:
+                date_info = parse_date_info(id_block.findNext("p").findNext("p").text.encode("utf-8"))
+            except:
+                pass
+            try:
+                pro_info = parse_proponent_info(id_block.findNext("p").findNext("p").findNext("p").text.encode("utf-8"))
+            except:
+                pass
+            try:
+                sum_info = parse_summary_info(id_block.findNext("p").findNext("p").findNext("p").findNext("p"))
+                prop.full_text_link = sum_info["full_text_link"]
+            except:
+                pass
+
+        ## PROPS THAT DON'T HAVE CLEAR SOS_ID BUT HTML TAG HAS AN ID WE CAN USE
+        else:
+            try:
+                prop.alt_id = pid
+            except:
+                pass
+            try:
+                if id_block.a:
+                    prop.full_text_link = id_block.a["href"]
+            except:
+                pass
+            try:
+                title_info = parse_title_info(id_block.a.text.encode("utf-8"))
+            except:
+                pass
+
+    ## PROPS THAT HAVE NO ID AND HTML TAG IS UNSTYLED
+    except:
+        pmatch = re.match(r'^\w+\s[0-9]+',id_block.text)
+        try:
+            prop.alt_id = pmatch.group()
+        except:
+            pass
+        try:
+            if id_block.a:
+                prop.full_text_link = id_block.a["href"]
+        except:
+            pass
+        try:
+            title_info = parse_title_info(id_block.a.text.encode("utf-8"))
+        except:
+            pass
+
+    ## STORE REMAINING INFO
     
-    #For initiatives with prop_num...
-    if re.search("Proposition",prop.text):
-        prop_info = re.findall("Proposition [0-9]+",prop.text)[0]
-        prop_num = re.findall("[0-9]+",prop_info)[0]
-        if re.search("\*",prop.text):
-            #Pull id_note note from tag 'text-emphasis' if '*' exists
-            if data.find("span",{"class":"text-emphasis"}):
-                asterisk_tag = data.find("span",{"class":"text-emphasis"}).text.encode("utf-8")
-            if re.search("\*",asterisk_tag):
-                id_note = asterisk_tag
+    # Store id info
+    try:
+        prop.sos_id = id_info["sos_id"]
+        prop.ag_id = id_info["ag_id"]
+        prop.sig_count_link = id_info["sig_count_link"]
+        prop.sig_note = id_info["sig_note"]
+        prop.date_sample_update = id_info["date_sample_update"]
+    except:
+        pass
 
-    #For initiatives when they first qualify and no prop_num has been assigned...
-    if re.search("^[0-9]{4}$",prop["id"]) and not re.search("Proposition",prop.text):
-        sig_block = prop.a.text.encode("utf-8").split(" - ")
-        sig_count_link = "http://www.sos.ca.gov" + prop.a["href"]
-        date_sample_update = sig_block[1].strip()
-        id_note = sig_block[0].strip()
+    # Store title info
+    try:
+        prop.title = title_info["title"]
+        prop.proposition_type = title_info["type"]
+        prop.prop_num = title_info["prop_num"]
+    except:
+        pass
+    
+    # Store date info
+    try:
+        prop.date_qualified = date_info["date_qualified"]
+        prop.date_circulation_deadline = date_info["date_circulation_deadline"]
+    except:
+        pass
+    
+    # Store proponent block info
+    try:
+        prop.proponent = pro_info["proponent"]
+        prop.proponent_search = pro_info["proponent_search"]
+        prop.email = pro_info["email"]
+        prop.phone = pro_info["phone"]
+    except:
+        pass
 
-        #Find and parse line with proponent info; extract phone number and email addresses if present
-        if data.find("p",{"class":"prop-status"}):
-            date_qual_block = data.find("p",{"class":"prop-status"})
-            date_qualified = date_qual_block.text.encode("utf-8").split(":")[1].strip()
-        
-        if date_qual_block:
-            proponent_block = date_qual_block.findNext("p")
-        else:
-            proponent_block = initiative_title_block.findNext("p")
-        email_test = proponent_block.findAll("a")
-        if email_test:
-            email_adr = email_test[0].text.encode("utf-8")
-        else:
-            email_adr = ""
-        proponent_str = proponent_block.text.encode("utf-8").replace(email_adr,"").replace("Proponent:","").strip()
-        phone_test = re.findall("\\([0-9]{3}\\)\\s?[0-9]{3}-[0-9]{4}",proponent_str)
-        if phone_test:
-            first = True
-            for item in phone_test:
-                if first:
-                    first = False
-                    phone_num = item
-                else:
-                    phone_num = "\n" + item
-        else:
-            phone_num = ""
-        proponent = proponent_str.replace(phone_num,"").strip()
+    # Store summary block info
+    try:
+        prop.summary = sum_info["summary"]
+        prop.fiscal_impact = sum_info["fiscal_impact"]
+    except:
+        pass
 
-        #Set summary and full text link
-        if data.find("p",{"class":"prop-text"}):
-            summary_block = data.find("p",{"class":"prop-text"})
-            summary = summary_block.text.encode("utf-8")
-
-        if summary_block.a['href']:
-            full_text_link = summary_block.a['href']
-        
-    #For legislative referrals when they first appear and no prop_num has been assigned...
-    if not re.search("^[0-9]{4}$",prop["id"]) and not re.search("Proposition",prop.text):
-        full_text_link = "http://www.sos.ca.gov" + prop.a["href"]
-
-    #For legislative referrals after prop_num assigned...
-    if re.search("Proposition",prop.text) and not re.search("prop",prop["id"]):
-        prop_title_block = prop.text.encode("utf-8").split("\xe2\x80\x94")
-        
-        #Set proposition_type if there is one
-        if data.find("p",{"class":"prop-type"}):
-            proposition_type = data.find("p",{"class":"prop-type"}).text.encode("utf-8").strip()
-
-        if len(prop_title_block) > 1:
-            initiative_title = prop_title_block[1].strip() + " \xe2\x80\x94 " + initiative_title
-    #logger.debug(prop_num + " | " + ag_id + " | " + sos_id)
-
-    # Scraper test code for qualified initiatives ends here 
-
-    #If ag_id isn't present, try fetching from AG site...
-    #logger.debug(prop_num + ": ag_id is " + ag_id + " and date_qualified is " + date_qualified)
-    if not ag_id and prop_num != "" or not date_qualified and prop_num != "":
-        ag_details = attempt_ag_site_match(prop_num)
-        if ag_details["match_status"] == 1: 
-            ag_id = ag_details["ag_id"]
-            date_qualified = ag_details["date_qualified"]
-            logger.debug("Match found for Prop " + prop_num + ": " + ag_id + " | " + date_qualified)
-        else:
-            logger.debug("No matching records found for Prop " + prop_num + " on AG site.")
-    #Notify of likely legislative referral or need for manual user match
-    if not ag_id and not prop_num:
-        logger.debug("No ag_id or prop_num for " + sos_id + " (" + initiative_title + "). Could be a legislative referral or there could be a problem. User needs to verify manually.")
-        #Enter email alert info here
-
-    return([ag_id,id_note,sos_id,initiative_title.strip(),summary.strip(),full_text_link,proponent,email_adr,phone_num,date_sum.strip(),date_sum_estimate,init_status,date_qualified,date_failed,date_sample_due,date_raw_count_due,date_circulation_deadline,sigs_req,date_sample_update,sig_count_link,fiscal_impact_link,election,prop_num])
-    """
+    return prop
 
 
 
@@ -309,6 +488,21 @@ def scrape_ag():
     new_ag_init.ag_id = "This is you ag_id"
     logger.debug(new_ag_init.ag_id)
     logger.debug(new_ag_init.id_note)
+
+
+### CHECK AGAINST DATABASE
+
+def check_if_exists_or_has_new_info():
+    pass
+
+def decide_whether_to_update():
+    pass
+
+def update_existing():
+    pass
+
+def create_and_save():
+    pass
 
 
 ### OLD FUNCTIONS
