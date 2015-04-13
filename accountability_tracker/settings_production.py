@@ -63,6 +63,9 @@ if "email" in CONFIG:
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+if CONFIG["installed_apps"]:
+    INSTALLED_APPS += tuple(CONFIG["installed_apps"])
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 if "build" in CONFIG:
     DEPLOY_DIR = CONFIG["build"]["deploy_dir"]

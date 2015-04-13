@@ -83,10 +83,6 @@ INSTALLED_APPS = (
     "django.contrib.redirects",
     "django.contrib.humanize",
 
-    # installed applications
-    "maplight_finance",
-    "election_profiles",
-
     # api & tools
     "massadmin",
     "tastypie",
