@@ -1,0 +1,136 @@
+{% extends "elections_spring2015/base.html" %}
+{% load static from staticfiles %}
+{% load elections_spring2015_template_tags %}
+
+<!-- begin meta -->
+{% block title %}2015 Los Angeles General Election Candidate Guide{% endblock %}
+{% block robots %}{% endblock %}
+{% block description %}See who’s appearing on the ticket on April 21, and find out more about the candidates running for office.{% endblock %}
+{% block keywords %}los angeles, city council, election, los angeles city council election, los angeles unified school board{% endblock %}
+{% block og_title %}2015 Los Angeles General Election Candidate Guide{% endblock %}
+{% block og_site_name %}KPCC{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_url %}http://projects.scpr.org/applications/california-elections-guide/2015/municipal/los-angeles-may-19/{% endblock %}
+{% block og_description %}See who’s appearing on the ticket on May 19, and find out more about the candidates running for office.{% endblock %}
+{% block twitter_url %}http://projects.scpr.org/applications/california-elections-guide/2015/municipal/los-angeles-may-19/{% endblock %}
+{% block twitter_title %}2015 Pasadena General Election Candidate Guide{% endblock %}
+{% block twitter_description %}See who’s appearing on the ticket on May 19, and find out more about the candidates running for office.{% endblock %}
+{% block facebook_encoded_share_url %}http://projects.scpr.org/applications/california-elections-guide/2015/municipal/los-angeles-may-19/{% endblock %}
+{% block twitter_share_text %}See who’s appearing on the ticket on May 19, and find out more about the candidates running for office.{% endblock %}
+{% block twitter_encoded_share_url %}http://projects.scpr.org/applications/california-elections-guide/2015/municipal/los-angeles-may-19/{% endblock %}
+<!-- end meta -->
+
+{% block super_css %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="http://projects.scpr.org/static/static-files/v3-dependencies/css/jquery-ui.1.10.3.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="http://projects.scpr.org/static/static-files/css/jquery-alerts/jquery.alerts.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="..{% static '/static/css/main-foundation-style-v3.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="..{% static '/static/css/election-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block data_details %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="content-article">
+            <div class="headlines">
+                <h4 class="kicker">{{ object_list.article_content.kicker }}</h4>
+                <h1>{{ object_list.article_content.display_headline }}</h1>
+            </div>
+
+            <p><span class="credits">{{ object_list.article_content.display_credits|safe }} | <span class="pubdate">{{ object_list.article_content.display_date|safe }}</p>
+
+            <h6>See who’s appearing on the ticket on May 19, and find out more about the candidates running for office.</h6>
+
+            <p><em>Source: The information on this page was provided by the candidates themselves via <a href="http://www.smartvoter.org/" target="blank">SmartVoter.org</a>.</em></p>
+
+            <div class="dropdown" style="float:left;">
+                <button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="dLabel" type="button">Jump to a Specific Race<span class="caret"></span></button>
+                <ul aria-labelledby="dLabel" class="dropdown-menu" role="menu">
+                    {% for race in object_list.display_races %}
+                        <li><a href="#{{ forloop.counter }}">{{ race }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="dropdown" style="float:right;">
+                <button id="electionlink" value="See Pasadena Election Guide" type="button" onclick="return btn_onclick()">See Pasadena Election Guide</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block data_visuals %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        {% for race in object_list.display_races %}
+            <h3 id="{{ forloop.counter }}">{{ race }}</h3>
+            {% for candidate in object_list.objects %}
+                {% if candidate.contest == race %}
+                    <div class="row" id="representative-container">
+                        <div class="col-xs-12 col-sm-4 col-md-3 col-lg-3" id="representative-image">
+                            <img class="responsive" src="..{% static '/static/images/' %}{{ candidate.candidate|image_path }}" />
+                        </div>
+                        <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9" id="representative-bio">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h4>{{ candidate.candidate }}</h4>
+                                </div>
+                            </div>
+                            <div style="width:50%;float:left;">
+                                <h6>Biographical Highlights</h6>
+                                <ul>
+                                    {% if candidate.biofacts %}
+                                        {% for fact in candidate.biofacts %}
+                                            <li>{{ fact }}</li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p><em>Information not available</em></p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div style="width:50%;float:left;">
+                                <h6>Top Priorities if Elected</h6>
+                                <ul>
+                                    {% if candidate.priorities %}
+                                        {% for item in candidate.priorities %}
+                                            <li>{{ item }}</li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p><em>Information not available</em></p>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="row" style="clear:left;">
+                                {% if candidate.candidate_url %}
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.candidate_url }}" target="_blank"> More at SmartVoter.org</a></p>
+                                    </div>
+                                {% endif %}
+                                {% if candidate.questions_url %}
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.questions_url }}" target="_blank"> Q&amp;A with SmartVoter</a></p>
+                                    </div>
+                                {% endif %}
+                                {% if candidate.kpcc_qa_url %}
+                                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                                        <p><span class="glyphicon glyphicon-link"></span>&nbsp;&nbsp;<a href="{{ candidate.kpcc_qa_url }}" target="_blank"> Q&amp;A with KPCC</a></p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block super_js %}
+    <script>
+        window.appConfig = {% app_config_object object_list.config_object %};
+    </script>
+    <script language="javascript" type="text/javascript">
+        function btn_onclick() 
+            {
+                window.location.href = "../pasadena-april-21";
+            }
+    </script>
+    <script src="..{% static '/static/scripts/_application_wrapper_0.5.js' %}"></script>
+{% endblock %}
