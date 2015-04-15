@@ -193,7 +193,7 @@ def parse_fields_from(html,candidate,contest,candidate_url,city):
             priorities = capture_list(cell)
 
         elif re.search("Questions",tablename):
-            questions_url = candidate_url + "questions.html"
+            questions_url = candidate_url + "/questions.html"
 
     # Create a row as dictionary and return it to the full dataset
     row = {
