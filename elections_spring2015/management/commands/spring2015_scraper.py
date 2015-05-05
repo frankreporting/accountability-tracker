@@ -29,7 +29,7 @@ def request_url_in(target_url):
     Looks up all contests by city, school district and local ballot measure and then
     checks the info against the database, adding or updating as appropriate.
     """
-    contestlists = ['04/21','05/19']
+    contestlists = ['05/19']
     candidaterows = []
     contestrows = []
 
