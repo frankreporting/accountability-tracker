@@ -9,11 +9,9 @@ from pytz import timezone
 import yaml
 
 CONFIG_FILE = os.environ.setdefault("ACCOUNTABILITY_TRACKER_CONFIG_PATH", "./development.yml")
-
 CONFIG = yaml.load(open(CONFIG_FILE))
 
 DEBUG = CONFIG.get("debug", False)
-
 TEMPLATE_DEBUG = DEBUG
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
