@@ -1,0 +1,201 @@
+{% extends "cali_water/base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load cali_water_template_tags %}
+
+<!-- begin meta -->
+{% block title %}Comparing cutbacks called for in state water conservation proposals{% endblock %}
+{% block robots %}{% endblock %}
+{% block description %}After an outcry from water agencies, the State Water Resources Control Board has updated its plan to achieve a 25 percent reduction in water use, shrinking required cuts on some communities while demanding even larger cuts from the heaviest users. This chart compares the latest proposed cuts to water use for South Coast agencies with the first draft.{% endblock %}
+{% block keywords %}drought, state water resources control board, california{% endblock %}
+{% block og_title %}Comparing cutbacks called for in state water conservation proposals{% endblock %}
+{% block og_site_name %}KPCC{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_url %}{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/reduction-comparison/{% endblock %}
+{% block og_description %}After an outcry from water agencies, the State Water Resources Control Board has updated its plan to achieve a 25 percent reduction in water use, shrinking required cuts on some communities while demanding even larger cuts from the heaviest users. This chart compares the latest proposed cuts to water use for South Coast agencies with the first draft.{% endblock %}
+{% block twitter_url %}{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/reduction-comparison/{% endblock %}
+{% block twitter_title %}Comparing cutbacks called for in state water conservation proposals{% endblock %}
+{% block twitter_description %}After an outcry from water agencies, the State Water Resources Control Board has updated its plan to achieve a 25 percent reduction in water use, shrinking required cuts on some communities while demanding even larger cuts from the heaviest users. This chart compares the latest proposed cuts to water use for South Coast agencies with the first draft.{% endblock %}
+{% block facebook_encoded_share_url %}{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/reduction-comparison/{% endblock %}
+{% block twitter_share_text %}This chart compares the latest proposed cuts in water use from State Water Resources Control Board with the first draft released earlier in April.{% endblock %}
+{% block twitter_encoded_share_url %}{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/reduction-comparison/{% endblock %}
+<!-- end meta -->
+
+{% block header_js %}
+    <script src="{{ STATIC_URL }}cali_water/scripts/jquery.tablesorter.js"></script>
+    <!--
+    <script src="{{ STATIC_URL }}cali_water/scripts/jquery.tablesorter.pager.js"></script>
+    -->
+    <script src="{{ STATIC_URL }}cali_water/scripts/jquery.tablesorter.multipagefilter.js"></script>
+    <script type="text/javascript">
+        /* For picking out bits from the query string */
+        var getParameterByName = function(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regexS = "[\\?&]" + name + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(window.location.href);
+            if(results == null){
+                return "";
+            } else {
+                return decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+        };
+    </script>
+{% endblock %}
+
+{% block data_details %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="content-article">
+            <div class="headlines">
+                <h4 class="kicker">{{ object_list.article_content.kicker }}</h4>
+                <h1>Comparing cutbacks called for in state water conservation proposals</h1>
+            </div>
+            <div class="about collapse">
+                <p><span class="credits">Produced by <a href="http://www.scpr.org/about/people/staff/molly-peterson">Molly Peterson</a> &amp; <a href="http://www.scpr.org/about/people/staff/chris-keller/">Chris Keller</a></span> | <span class="pubdate">Published April 17, 2015</span></p>
+                <p>After an outcry from water agencies, the State Water Resources Control Board has updated its plan to achieve a 25 percent reduction in water use, shrinking required cuts on some communities while demanding even larger cuts from the heaviest users.</p>
+                <p>The amount of water cities must conserve depends on their average per-capita water use from July through September of last year. The original plan only considered September use.</p>
+                <p>Previously, cities were divided into reduction tiers of 10, 20, 25 and 35 percent. The new plan envisions nine tiers ranging from 8 to 36 percent.</p>
+            </div>
+            <div class="sources collapse">
+                <p>
+                    {% if about_content.sources %}
+                        <strong>Sources</strong>: {{ about_content.sources|safe }}
+                    {% endif %}
+                    {% if about_content.open_source %}
+                        <strong>Built using</strong>: {{ about_content.open_source|safe }}
+                    {% endif %}
+                    {% if about_content.data_download %}
+                        <strong>Download</strong>: {{ about_content.data_download|safe }}
+                    {% endif %}
+                    {% if about_content.github_link %}
+                        View on <a href="{{ about_content.github_link|safe }}" target="_blank">GitHub</a>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="buttons btn-group btn-group-justified">
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".about"><span class="about glyphicon glyphicon-chevron-down"></span>  About</a>
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".sources"><span class="sources glyphicon glyphicon-chevron-down"></span>  Sources</a>
+                {% if about_content.read_more_link %}
+                    <a class="btn btn-primary" href="{{ about_content.read_more_link }}"><span class="glyphicon glyphicon-link"></span> Read more</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block data_visuals %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <ol class="breadcrumb">
+            <li><a href="{% settings_value 'URL_PATH' %}/">Home</a></li>
+            <li><a href="{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/">{{ region_name }}</a></li>
+            <li class="active">Comparison of reduction proposals</li>
+        </ol>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="lead small"><strong>About the data</strong>: This chart compares the three proposals to require <a href="{% settings_value 'URL_PATH' %}/region/{{ region_slug }}/">{{ region_name }}</a> water agencies to cut their water production. Several agencies have a lower threshold to meet under the new framework. Others have a higher threshold. The chart also compares an agency's three-month daily per capita residential water use rate&mdash;from July to Sept. 2014&mdash;used in the updated plans with the original one-month rate&mdash;from Sept. 2014. Although approved, the State Water Resources Control Board said water agencies will have until May 31 to submit verfied data that could affect placement in this tier system. Since the per capita measure (which reflects gallons of water used per resident per day) does not take into account rainfall, temperature, humidity and population density, the State Water Resources Control Board discourages comparisons between water suppliers.</p>
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="table-container">
+            <div id="table_fu">
+                <div id="controls" class="row">
+                    <div class="filter col-xs-12 col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+                        <form class="form-inline" >
+                            <input type="text" class="search form-control" placeholder="Filter list of {{ region_name }} agencies...">
+                        </form>
+                    </div>
+                    <!--
+                    <div class="col-xs-12 col-sm-8 col-md-8 col-lg-8 pager">
+                        <form class="form-inline">
+                            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                <p class="text-center"><span class="glyphicon glyphicon-fast-backward first"></span>
+                                <span class="glyphicon glyphicon-backward prev"></span>
+                                <span class="pagedisplay"></span>
+                                <span class="glyphicon glyphicon-forward next"></span>
+                                <span class="glyphicon glyphicon-fast-forward last"></span></p>
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                <select class="pagenav form-control"></select>
+                            </div>
+                            <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
+                                <select class="pagesize form-control"></select>
+                            </div>
+                        </form>
+                    </div>
+                    -->
+                </div>
+                <div class="clear"></div>
+                <table id="data" class="kpcc-table tabular table">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="cursor: pointer;">Water Agency</th>
+                            <th class="text-center" style="cursor: pointer;">Hydrological Region</th>
+                            <th class="text-center" style="cursor: pointer;">Change in reduction</th>
+                            <th class="text-center" style="cursor: pointer;">July-Sept. 2014 daily per capita rate</th>
+                            <th class="text-center" style="cursor: pointer;">April 28 proposal</th>
+                            <th class="text-center" style="cursor: pointer;">April 18 proposal</th>
+                            <th class="text-center" style="cursor: pointer;">April 7 proposal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for supplier in water_suppliers %}
+                            <tr>
+                                <td class="text-center"><mark>Water Agency</mark><a href="{% settings_value 'URL_PATH' %}/{{ supplier.supplier_slug }}/" target="blank">{{ supplier.supplier_name|title }}</a></td>
+                                <td class="text-center"><mark>Hydrological Region</mark>{{ supplier.hydrologic_region|title }}</td>
+                                <td class="text-center"><mark>Change</mark>{% change_in_reduction_tier supplier.april_28_reduction supplier.april_18_reduction %}</td>
+                                {% if supplier.april_28_reduction %}
+                                    <td class="text-center"><mark>July-Sept. 2014 daily per capita rate</mark>{{ supplier.april_28_rgpcd|floatformat:2|intcomma }} gallons</td>
+                                    <td class="text-center"><mark>April 28 proposal</mark>{{ supplier.april_28_reduction|percentage }}</td>
+                                {% else %}
+                                    <td class="text-center"><mark>July-Sept. 2014 daily per capita rate</mark>n/a</td>
+                                    <td class="text-center"><mark>April 28 proposal</mark>n/a</td>
+                                {% endif %}
+                                {% if supplier.april_18_reduction %}
+                                    <td class="text-center"><mark>April 18 proposal</mark>{{ supplier.april_18_reduction|percentage }}</td>
+                                {% else %}
+                                    <td class="text-center"><mark>April 18 proposal</mark>n/a</td>
+                                {% endif %}
+                                {% if supplier.april_7_reduction %}
+                                    <td class="text-center"><mark>April 7 proposal</mark>{{ supplier.april_7_reduction|percentage }}</td>
+                                {% else %}
+                                    <td class="text-center"><mark>April 7 proposal</mark>n/a</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block config_js %}
+    <script>
+        window.appConfig = {% app_config_object config_object %};
+        window.appConfig.embed_this = false;
+        window.appConfig.open_about_this = true;
+    </script>
+{% endblock %}
+
+{% block super_js %}
+    <script src="{{ STATIC_URL }}cali_water/scripts/_application.js"></script>
+    <script>
+
+        var sorting_array = [[2, 0], [0, 0]];
+
+        var headers_object = {
+            0: {sorter: true},
+            1: {sorter: true},
+            2: {sorter: true},
+            3: {sorter: true},
+            4: {sorter: true}
+        };
+
+        $(document).ready(function(){
+            fn.createReductionComparisonTable(sorting_array, headers_object);
+        });
+
+    </script>
+{% endblock %}
