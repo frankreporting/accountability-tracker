@@ -205,6 +205,12 @@ def svscrape():
     """
     local("python manage.py smart_voter_scraper")
 
+def springscrape():
+    """
+    scrape candidate data from SmartVoter.org
+    """
+    local("python manage.py spring2015_scraper")
+
 def loadkpccqa():
     """
     load KPCC candidate Q&A links into database
