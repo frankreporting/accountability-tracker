@@ -70,3 +70,6 @@ accountability_tracker/public/*
 config.yml
 development.yml
 dbsync_setup.rb
+
+see_change
+social_pols
