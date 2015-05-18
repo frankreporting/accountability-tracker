@@ -13,6 +13,9 @@ CONFIG = yaml.load(open(CONFIG_FILE))
 
 DEBUG = CONFIG.get("debug", False)
 TEMPLATE_DEBUG = DEBUG
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
 DEBUG_TOOLBAR = DEBUG
 
 INTERNAL_IPS = CONFIG.get("internal_ips", None)
@@ -30,11 +33,11 @@ DATABASES = {
 
 SECRET_KEY = CONFIG["secret_key"]
 
-# tweepy api though should change this
-TWEEPY_CONSUMER_KEY         = CONFIG["api"]["tweepy"]["consumer_key"]
-TWEEPY_CONSUMER_SECRET      = CONFIG["api"]["tweepy"]["consumer_secret"]
-TWEEPY_ACCESS_TOKEN         = CONFIG["api"]["tweepy"]["access_token"]
-TWEEPY_ACCESS_TOKEN_SECRET  = CONFIG["api"]["tweepy"]["access_token_secret"]
+# twitter api though should change this
+TWITTER_CONSUMER_KEY         = CONFIG["api"]["twitter"]["consumer_key"]
+TWITTER_CONSUMER_SECRET      = CONFIG["api"]["twitter"]["consumer_secret"]
+TWITTER_ACCESS_TOKEN         = CONFIG["api"]["twitter"]["access_token"]
+TWITTER_ACCESS_TOKEN_SECRET  = CONFIG["api"]["twitter"]["access_token_secret"]
 LOCAL_TWITTER_TIMEZONE = pytz.timezone("US/Pacific")
 TWITTER_TIMEZONE = timezone("UTC")
 
@@ -48,6 +51,13 @@ REQUEST_HEADERS = {
 
 # assethost api token
 ASSETHOST_TOKEN_SECRET = CONFIG["api"]["assethost"]["token_secret"]
+
+# key for the public insight network
+PIN_NETWORK_API_KEY = CONFIG["api"]["pin_network"]["api_key"]
+
+# keys for the instagram
+INSTAGRAM_CLIENT_ID = CONFIG["api"]["instagram"]["instagram_client_id"]
+INSTAGRAM_CLIENT_SECRET = CONFIG["api"]["instagram"]["instagram_client_secret"]
 
 # auth to send out emails when models change
 if "email" in CONFIG:
@@ -63,14 +73,11 @@ if "email" in CONFIG:
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-if "build" in CONFIG:
-    DEPLOY_DIR = CONFIG["build"]["deploy_dir"]
-    BUILD_DIR = CONFIG["build"]["build_dir"]
-    BAKERY_VIEWS = tuple(CONFIG["build"]["views"])
+if CONFIG["installed_apps"]:
+    INSTALLED_APPS += tuple(CONFIG["installed_apps"])
 
 # django debug toolbar configuration
-if DEBUG_TOOLBAR:
+if DEBUG_TOOLBAR == True:
 
     # debugging toolbar middleware
     MIDDLEWARE_CLASSES += (
@@ -155,3 +162,14 @@ SITE_URL = "http://accountability.scpr.org"
 STATICFILES_DIRS = (
 
 )
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+if "build" in CONFIG:
+    STAGING = CONFIG["build"]["staging"]
+    STAGING_PREFIX = CONFIG["build"]["staging_prefix"]
+    LIVE_PREFIX = CONFIG["build"]["live_prefix"]
+    DEPLOY_DIR = CONFIG["build"]["deploy_dir"]
+    STATIC_DIR = STATIC_URL
+    BUILD_DIR = CONFIG["build"]["build_dir"]
+    BAKERY_VIEWS = tuple(CONFIG["build"]["views"])
+    URL_PATH = ""

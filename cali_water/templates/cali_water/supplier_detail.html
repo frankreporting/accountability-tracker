@@ -1,0 +1,281 @@
+{% extends "cali_water/base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load cali_water_template_tags %}
+
+<!-- begin meta -->
+{% block title %}{{ object|title }} monthly water use data{% endblock %}
+{% block robots %}{% endblock %}
+
+{% block description %}
+    {% if results.0.calculated_rgpcd_2013 %}
+        Gallons of water used per person per day {% increase_or_decrease results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %} in {{ results.0.reporting_month|date:"N Y" }} compared to {{ results.0.reporting_month|get_last_year|date:"N Y" }} in the {{ object|title }}
+    {% else %}
+        Residential customers in the {{ object|title }} used {{ results.0.calculated_rgpcd_2014 }} gallons of water used per person per day in {{ results.0.reporting_month|date:"N Y" }}, according to the latest data from the State Water Resources Control Board.
+    {% endif %}
+{% endblock %}
+
+{% block keywords %}drought, state water resources control board, california{% endblock %}
+{% block og_title %}{{ object|title }} monthly water use data{% endblock %}
+{% block og_site_name %}KPCC{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block og_url %}http://projects.scpr.org/applications/monthly-water-use/{{ slug }}/{% endblock %}
+
+{% block og_description %}
+    {% if results.0.calculated_rgpcd_2013 %}
+        Gallons of water used per person per day {% increase_or_decrease results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %} in {{ results.0.reporting_month|date:"N Y" }} compared to {{ results.0.reporting_month|get_last_year|date:"N Y" }} in the {{ object|title }}
+    {% else %}
+        Residential customers in the {{ object|title }} used {{ results.0.calculated_rgpcd_2014 }} gallons of water used per person per day in {{ results.0.reporting_month|date:"N Y" }}, according to the latest data from the State Water Resources Control Board.
+    {% endif %}
+{% endblock %}
+
+{% block twitter_url %}http://projects.scpr.org/applications/monthly-water-use/{{ slug }}/{% endblock %}
+{% block twitter_title %}{{ object|title }} monthly water use data{% endblock %}
+
+{% block twitter_description %}
+    {% if results.0.calculated_rgpcd_2013 %}
+        Gallons of water used per person per day {% increase_or_decrease results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %} in {{ results.0.reporting_month|date:"N Y" }} compared to {{ results.0.reporting_month|get_last_year|date:"N Y" }} in the {{ object|title }}
+    {% else %}
+        Residential customers in the {{ object|title }} used {{ results.0.calculated_rgpcd_2014 }} gallons of water used per person per day in {{ results.0.reporting_month|date:"N Y" }}, according to the latest data from the State Water Resources Control Board.
+    {% endif %}
+{% endblock %}
+
+{% block facebook_encoded_share_url %}http://projects.scpr.org/applications/monthly-water-use/{{ slug }}/{% endblock %}
+
+{% block twitter_share_text %}
+    {% if results.0.calculated_rgpcd_2013 %}
+        Gallons of water used per person per day {% increase_or_decrease results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %} in {{ results.0.reporting_month|date:"N Y" }} compared to {{ results.0.reporting_month|get_last_year|date:"N Y" }} in the {{ object|title }}
+    {% else %}
+        Residential customers in the {{ object|title }} used {{ results.0.calculated_rgpcd_2014 }} gallons of water used per person per day in {{ results.0.reporting_month|date:"N Y" }}, according to the latest data from the State Water Resources Control Board.
+    {% endif %}
+{% endblock %}
+
+{% block twitter_encoded_share_url %}http://projects.scpr.org/applications/monthly-water-use/{{ slug }}/{% endblock %}
+<!-- end meta -->
+
+{% block super_css %}
+    <link href="{{ STATIC_URL }}cali_water/css/chartist.min.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{{ STATIC_URL }}cali_water/css/chart-override.css" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block data_details %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="content-article">
+            <div class="headlines">
+                <h4 class="kicker">{{ article_content.kicker }}</h4>
+                <h1>{{ article_content.display_headline }}</h1>
+            </div>
+            <div class="about collapse">
+                <p><span class="credits">{{ article_content.display_credits|safe }}</span> | <span class="pubdate">{{ article_content.display_date|safe }}</span></p>
+                {{ article_content.display_text|safe }}
+            </div>
+            <div class="sources collapse">
+                <p>
+                    {% if about_content.sources %}
+                        <strong>Sources</strong>: {{ about_content.sources|safe }}
+                    {% endif %}
+                    {% if about_content.open_source %}
+                        <strong>Built using</strong>: {{ about_content.open_source|safe }}
+                    {% endif %}
+                    {% if about_content.data_download %}
+                        <strong>Download</strong>: {{ about_content.data_download|safe }}
+                    {% endif %}
+                    {% if about_content.github_link %}
+                        View on <a href="{{ about_content.github_link|safe }}" target="_blank">GitHub</a>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="buttons btn-group btn-group-justified">
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".about"><span class="about glyphicon glyphicon-chevron-down"></span>  About</a>
+                <a class="btn btn-primary" href="javascript:void(0)" data-toggle="collapse" data-target=".sources"><span class="sources glyphicon glyphicon-chevron-down"></span>  Sources</a>
+                {% if object_list.about_content.read_more_link %}
+                    <a class="btn btn-primary" href="{{ about_content.read_more_link }}"><span class="glyphicon glyphicon-link"></span> Read more</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block data_visuals %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <ol class="breadcrumb">
+                <li><a href="{% settings_value 'URL_PATH' %}/">Home</a></li>
+                <li><a href="{% settings_value 'URL_PATH' %}/region/{{ results.0.hydrologic_region|slugify }}/">{{ results.0.hydrologic_region }}</a></li>
+                <li class="active">{{ object|title }}</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- begin compare calculated_rgpcd -->
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h3>{{ object|title }}</h3>
+        </div>
+    </div>
+    <div class="row calculated-last-year">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <p>The State Water Resources Control Board has proposed regulations to achieve a 25 percent reduction in water use statewide. The most recent reduction target proposed for the {{ object|title }} is </p>
+        </div>
+        <div class="_data_figure col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <dl>
+                <dt class="text-center"><span class="decrease-accent">{{ april_28_tier.conservation_standard|percentage }}</span></dt>
+                <dd>This is based on a April 28, 2015 revision tied to an <a href="{% settings_value 'URL_PATH' %}/region/{{ results.0.hydrologic_region|slugify }}/reduction-comparison/">average July through Sept. 2014 daily per capita residential water use rate of </a> {{ april_28_tier.conservation_placement|floatformat:2|intcomma }} gallons that places water agencies into <a href="http://www.waterboards.ca.gov/waterrights/water_issues/programs/drought/docs/emergency_regulations/supplier_tiers_20150428.pdf">nine tiers of reduction targets</a>.</dd>
+                <dd>There have been two prior proposals. An <a href="http://www.scpr.org/news/2015/04/18/51092/water-board-set-to-release-updated-proposal-for-ma/">April 18, 2015 proposal</a> required the {{ object|title }} to reduce its use by <span class="decrease-accent">{{ april_18_tier.conservation_standard|percentage }}</span> based on an <a href="{% settings_value 'URL_PATH' %}/region/{{ results.0.hydrologic_region|slugify }}/reduction-comparison/">average July through Sept. 2014 daily per capita residential water use</a>. The <a href="http://www.scpr.org/news/2015/04/07/50839/california-cities-pressured-to-step-up-to-slash-wa/">original April 7, 2015 proposal</a> required the {{ object|title }} to reduce its use by <span class="decrease-accent">{{ april_7_tier.conservation_standard|percentage }}</span> based on its <a href="{% settings_value 'URL_PATH' %}/region/{{ results.0.hydrologic_region|slugify }}/reduction-comparison/">Sept. 2014 daily per capita residential water use</a>.</dd>
+            </dl>
+        </div>
+    </div>
+    <!-- end compare calculated_rgpcd -->
+
+    <!-- begin compare calculated_rgpcd -->
+    {% if results.0.calculated_rgpcd_2013 %}
+        <div class="row calculated-last-year">
+            <div class="_data_figure col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <dl>
+                    <dt class="text-center">{% percent_change results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %}</dt>
+                    <dd>The latest daily per capita residential water use rate which <span>{% increase_or_decrease results.0.calculated_rgpcd_2013 results.0.calculated_rgpcd_2014 %}</span> according to <a href="http://www.swrcb.ca.gov/waterrights/water_issues/programs/drought/conservation_reporting_info.shtml">data submitted</a> to the <a href="http://www.waterboards.ca.gov/">State Water Resources Control Board.</a> The figure is calculated by comparing the {{ results.0.reporting_month|date:"N Y" }} daily per capita residential water use rate of {{ results.0.calculated_rgpcd_2013|floatformat:2|intcomma }} gallons with the {{ results.0.reporting_month|get_last_year|date:"N Y" }} daily per capita residential water use rate of {{ results.0.calculated_rgpcd_2014|floatformat:2|intcomma }} gallons.</dd>
+                </dl>
+            </div>
+        </div>
+    {% else %}
+        <div class="row calculated-last-year">
+            <div class="_data_figure col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <dl>
+                    <dt class="text-center">{{ results.0.calculated_rgpcd_2014 }}</dt>
+                    <dd>The {{ results.0.reporting_month|date:"N Y" }} daily per capita residential water use rate according to <a href="http://www.swrcb.ca.gov/waterrights/water_issues/programs/drought/conservation_reporting_info.shtml">data submitted</a> to the <a href="http://www.waterboards.ca.gov/">State Water Resources Control Board.</a></dd>
+                </dl>
+            </div>
+        </div>
+    {% endif %}
+    <!-- end compare calculated_rgpcd -->
+
+    <!-- begin compare state average rgpcd -->
+    <div class="row calculated-last-year">
+        <div class="_data_figure col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <dl>
+                <dt class="text-center">{% percent_change latest_state_avg results.0.calculated_rgpcd_2014 %}</dt>
+                <dd>How much <span>{% compare_to_avg latest_state_avg results.0.calculated_rgpcd_2014 %}</span> water residential customers the {{ object|title }} used in {{ results.0.reporting_month|date:"N Y" }} when compared to the statewide average daily per capita residential water use rate of {{ latest_state_avg|floatformat:2|intcomma }} gallons. The {{ object|title }} serves a total population of {{ results.0.total_population_served|intcomma }}, and residential customers account for about {{ results.0.percent_residential_use|percentage }} of the water used.</dd>
+            </dl>
+        </div>
+    </div>
+    <!-- end compare state average rgpcd -->
+
+    <!-- begin charts -->
+    <div class="row chart">
+        <div class="_data_figure hidden-xs col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <dl>
+                <dt class="text-center">{% build_chart_title data_2014 %}</dt>
+                <dd>{% build_chart_sentence data_2014 %}</dd>
+            </dl>
+            <div class="ct-chart ct-double-octave"></div>
+        </div>
+    </div>
+    <!-- end charts -->
+
+    {% if incentives.0.incentives_offered == True  %}
+        <div class="row incentive">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h6 class="text-center">{{ incentives.0.supplier_name|title }} has a conservation incentive program for residential or business customers</h6>
+                    {% if incentives.0.incentives_details %}
+                        <p>{{ incentives.0.incentives_details }}
+                        {% if incentives.0.incentives_url %}
+                            Learn more about the conservation incentive program <a href="{{ incentives.0.incentives_url }}">here</a>.</p>
+                        {% else %}
+                        {% endif %}
+                    {% else %}
+                    </p>
+                    {% endif %}
+                    {% if incentives.0.turf_removal_offered == True  %}
+                        <p>A turf removal program also provides consumers with rebates for removing grass from their property and replacing it with a drought tolerant plants.
+                        {% if incentives.0.turf_rebate_amount %}
+                            Currently the rebate for residential customers is {{ incentives.0.turf_rebate_amount|currency }} per square foot.
+                        {% else %}
+                            </p>
+                        {% endif %}
+                        {% if incentives.0.turf_removal_details %}
+                            <p>{{ incentives.0.turf_removal_details }}</p>
+                        {% else %}
+                        {% endif %}
+                        {% if incentives.0.turf_removal_url %}
+                            <p>Learn more about the turf removal program <a href="{{ incentives.0.turf_removal_url }}">here</a>.</p>
+                        {% else %}
+                        {% endif %}
+                    {% else %}
+                    {% endif %}
+                <p class="pubdate small-writing">&ndash; Last updated {{ incentives.0.turf_removal_last_updated|date:"N Y" }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!--
+    {% if restrictions.0.restriction == True %}
+        <div class="row restrictions">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                {% if restrictions.0.restriction_current_status == None %}
+                    <h6 class="text-center">We couldn't find updated information for {{ restrictions.0.supplier_name|title }}.</h6>
+                {% elif restrictions.0.restriction_current_status == "state-mandated" %}
+                    <h6 class="text-center">{{ restrictions.0.supplier_name|title }} now should be following <a href="http://www.waterboards.ca.gov/waterrights/water_issues/programs/drought/docs/emergency_regulations/oal_app2014071810e.pdf">statewide water restrictions</a> that took effect July 29, 2014.</h6>
+                {% elif restrictions.0.restriction_current_status == "restrictions" %}
+                    <h6 class="text-center">{{ restrictions.0.supplier_name|title }} had restrictions in place prior to <a href="http://www.waterboards.ca.gov/waterrights/water_issues/programs/drought/docs/emergency_regulations/oal_app2014071810e.pdf">statewide action</a> on July 29, 2014.</h6>
+                {% else %}
+                    <h6 class="text-center">We couldn't find updated information for {{ restrictions.0.supplier_name|title }}.</h6>
+                {% endif %}
+                {% if restrictions.0.restriction_details %}
+                    <p>{{ restrictions.0.restriction_details|safe }}</p>
+                    <p class="pubdate small-writing">&ndash; Last updated {{ restrictions.0.restrictions_last_updated|date:"N Y" }}</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    -->
+
+    <div class="row conservation">
+        <div class="icon-display col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <h6 class="text-center">Here are some ways you can help conserve water</h6>
+                {% for method in conservation_methods %}
+                    <div class="icons col-xs-12 col-sm-6 col-md-3 col-lg-3">
+                        <img class="placemark" src="{{ method.method_image_path }}" />
+                        <p class="text-center">{{ method.method_text }}</p>
+                    </div>
+                {% endfor %}
+        </div>
+    </div>
+
+    <p class="lead"><strong>About the data</strong>: This data is for urban water suppliers and is based on the the most recent reports submitted to the <a href="http://www.waterboards.ca.gov/waterrights/">State Water Resources Control Board</a>. Since the gallons of water used per person per day measurement does not take into account rainfall, temperature, humidity and population density, the State Water Resources Control Board discourages comparisons between water suppliers.</p>
+</div>
+{% endblock %}
+
+{% block config_js %}
+    <script>
+        window.appConfig = {% app_config_object config_object %};
+        window.appConfig.open_about_this = false;
+        window.appConfig.embed_this = false;
+    </script>
+{% endblock %}
+
+{% block super_js %}
+    <script src="{{ STATIC_URL }}cali_water/scripts/chartist.min.js"></script>
+    <script src="{{ STATIC_URL }}cali_water/scripts/_application.js"></script>
+    <script>
+        var chartAxisLabels = {{ labels|app_config_object|safe }}
+        var data = {
+            // a labels array that can contain any sort of values
+            labels: chartAxisLabels,
+
+            // our series array that contains series objects or in this case series data arrays
+            series: [
+            //{
+                //name: "2013",
+                //data: {{ data_2013 }}
+            //},
+            {
+                name: "2014",
+                data: {{ data_2014 }}
+            }]
+        };
+        $(document).ready(function(){
+            fn.drawUsageOverTimeChart(chartAxisLabels, data);
+        });
+    </script>
+{% endblock %}

@@ -22,8 +22,18 @@ class WaterSupplier(models.Model):
     supplier_url = models.URLField("URL to Water Supplier Home Page", max_length=1024, null=True, blank=True)
     supplier_mwd_member = models.BooleanField("Member of MWD?", default=False)
     hydrologic_region = models.CharField("Hydrologic Region", max_length=255, null=True, blank=True)
+    hydrologic_region_slug = models.SlugField("Hydrologic Region Slug", db_index=True, max_length=255, null=True, blank=True)
     created_date = models.DateTimeField("Date Created", default=datetime.datetime.now)
     supplier_notes = models.TextField("Notes About This Water Supplier", null=True, blank=True)
+    april_7_tier = models.IntegerField("April 7 Reduction Tier", null=True, blank=True)
+    april_7_reduction = models.FloatField("April 7 Reduction Percent", null=True, blank=True)
+    april_7_rgpcd = models.FloatField("April 7 RGPCD", null=True, blank=True)
+    april_18_tier = models.IntegerField("April 18 Reduction Tier", null=True, blank=True)
+    april_18_reduction = models.FloatField("April 18 Reduction Percent", null=True, blank=True)
+    april_18_rgpcd = models.FloatField("April 18 RGPCD", null=True, blank=True)
+    april_28_tier = models.IntegerField("April 28 Reduction Tier", null=True, blank=True)
+    april_28_reduction = models.FloatField("April 28 Reduction Percent", null=True, blank=True)
+    april_28_rgpcd = models.FloatField("April 28 RGPCD", null=True, blank=True)
 
     def __unicode__(self):
         return self.supplier_name
@@ -36,10 +46,27 @@ class WaterSupplier(models.Model):
         return ("detail", [self.supplier_slug])
 
 
+# model for individual water supplier
+class HydrologicRegion(models.Model):
+    hydrologic_region = models.CharField("Hydrologic Region", max_length=255, null=True, blank=True)
+    hydrologic_region_slug = models.SlugField("Hydrologic Region Slug", db_index=True, max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.hydrologic_region
+
+    def save(self, *args, **kwargs):
+        super(HydrologicRegion, self).save(*args, **kwargs)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("detail", [self.hydrologic_region_slug])
+
+
 # model for water supplier monthly report
 class WaterSupplierMonthlyReport(models.Model):
     report_date = models.DateField("Report Date", db_index=True, blank=True, default=datetime.datetime.now)
     supplier_name = models.ForeignKey(WaterSupplier, to_field="supplier_name")
+    supplier_slug = models.SlugField("Water Supplier Slug", db_index=True, max_length=255, null=True, blank=True)
     stage_invoked = models.CharField("Stage Invoked", max_length=255, null=True, blank=True)
     mandatory_restrictions = models.BooleanField("Mandatory Restrictions", default=False)
     reporting_month = models.DateField("Reporting Month", default=datetime.date(2015, 1, 1), blank=True)
@@ -59,12 +86,40 @@ class WaterSupplierMonthlyReport(models.Model):
     calculated_rgpcd_2013 = models.FloatField("CALCULATED RGPCD 2013 (Values calculated by Water Board staff using methodology available at http://www.waterboards.ca.gov/waterrights/water_issues/programs/drought/docs/ws_tools/guidance_estimate_res_gpcd.pdf)", db_index=True, null=True, blank=True)
     percent_residential_use = models.FloatField("Percent Residential Use", null=True, blank=True)
     comments_or_corrections = models.TextField("Comments or Corrections", null=True, blank=True)
+    hydrologic_region = models.CharField("Hydrologic Region", db_index=True, max_length=255, null=True, blank=True)
+    hydrologic_region_slug = models.SlugField("Hydrologic Region Slug", db_index=True, max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return self.supplier_name_id
 
     def save(self, *args, **kwargs):
         super(WaterSupplierMonthlyReport, self).save(*args, **kwargs)
+
+
+# model for water supplier monthly report
+class WaterEnforcementMonthlyReport(models.Model):
+    report_date = models.DateField("Report Date", db_index=True, blank=True, default=datetime.datetime.now)
+    reported_to_state_date = models.DateField("Date Reported to the State", db_index=True, blank=True, default=datetime.datetime.now)
+    reporting_month = models.DateField("Reporting Month", default=datetime.date(2015, 1, 1), blank=True)
+    supplier_id = models.IntegerField("Supplier ID", null=True, blank=True)
+    supplier_name = models.CharField("Water Supplier Name", db_index=True, max_length=255)
+    supplier_slug = models.SlugField("Water Supplier Slug", db_index=True, max_length=255, null=True, blank=True)
+    hydrologic_region = models.CharField("Hydrologic Region", db_index=True, max_length=255, null=True, blank=True)
+    hydrologic_region_slug = models.SlugField("Hydrologic Region Slug", db_index=True, max_length=255, null=True, blank=True)
+    total_population_served = models.IntegerField("Total Population Served", null=True, blank=True)
+    mandatory_restrictions = models.BooleanField("Mandatory Restrictions", default=False)
+    water_days_allowed_week = models.IntegerField("Water Days Allowed/Week", null=True, blank=True)
+    complaints_received = models.IntegerField("Complaints Received", null=True, blank=True)
+    follow_up_actions = models.IntegerField("Follow-up Actions", null=True, blank=True)
+    warnings_issued = models.IntegerField("Warnings Issued", null=True, blank=True)
+    penalties_assessed = models.IntegerField("Penalties Assessed", null=True, blank=True)
+    enforcement_comments = models.TextField("Enforcement Comments", null=True, blank=True)
+
+    def __unicode__(self):
+        return self.supplier_name
+
+    def save(self, *args, **kwargs):
+        super(WaterEnforcementMonthlyReport, self).save(*args, **kwargs)
 
 
 # model for incentives offered to water customers
