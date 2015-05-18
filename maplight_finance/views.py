@@ -14,12 +14,6 @@ from maplight_finance.models import Initiative, InitiativeContributor
 from bakery.views import BuildableListView, BuildableDetailView
 import logging
 
-#logger = logging.getLogger("root")
-#logging.basicConfig(
-    #format = "\033[1;36m%(levelname)s: %(filename)s (def %(funcName)s %(lineno)s): \033[1;37m %(message)s",
-    #level=logging.DEBUG
-#)
-
 logger = logging.getLogger("accountability_tracker")
 
 # Create your views here.

@@ -20,8 +20,11 @@ urlpatterns = [
     # url pattern to kick root to index of cali_water application
     url(r"^monthly-water-use/", include("cali_water.urls")),
 
-    # url pattern to kick root to index of cali_water application
+    # url pattern to kick root to index of election_profiles application
     url(r"^2015-la-election-guide/", include("election_profiles.urls")),
+
+    # url pattern to kick root to index of see_change application
+    url(r"^see-change/", include("see_change.urls")),
 
     # url pattern to kick root to index of maplight_finance application
     url(r"", include("maplight_finance.urls")),
@@ -30,5 +33,11 @@ urlpatterns = [
     url(r"^admin/", include("massadmin.urls")),
 ]
 
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    )
+
 if settings.DEBUG and settings.MEDIA_ROOT:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

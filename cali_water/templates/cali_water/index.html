@@ -1,5 +1,6 @@
 {% extends "cali_water/base.html" %}
-{% load static %}
+{% load humanize %}
+{% load staticfiles %}
 {% load cali_water_template_tags %}
 
 <!-- begin meta -->
@@ -21,15 +22,12 @@
 <!-- end meta -->
 
 {% block super_css %}
-    <link href="{% static 'css/reset.css' %}" media="screen" rel="stylesheet" type="text/css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="http://projects.scpr.org/static/static-files/v3-dependencies/css/jquery-ui.1.10.3.css" rel="stylesheet" type="text/css" media="all" />
-    <link href="http://projects.scpr.org/static/static-files/css/jquery-alerts/jquery.alerts.css" rel="stylesheet" type="text/css" media="all" />
-    <link href="{% static 'css/main-foundation-style-v3.css' %}" media="screen" rel="stylesheet" type="text/css" />
-    <link href="{% static 'css/style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
-{% block header_js %}{% endblock %}
+{% block header_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.2/js/select2.min.js"></script>
+{% endblock %}
 
 {% block data_details %}
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -71,90 +69,107 @@
 
 {% block data_visuals %}
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="row data-legend">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="jumbotron">
-                    <noscript>Please enable JavaScript to view this interactive.</noscript>
-                    <h4 class="text-center">Choose a water supplier</h4>
-                    <div id="content-action-bar">
-                        <select id="water-supplier-list" class="form-control">
-                            <option>-- Select by hydrological region --</option>
-                            {% for report in object_list.option_list %}
-                                <optgroup label="{{ report.hydrologic_region }}">
-                                {% for supplier in report.suppliers %}
-                                    <option value="..{% url "water-supplier-detail" supplier.supplier_slug %}">{{ supplier.supplier_name|title }}</option>
-                                {% endfor %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
+        <div class="jumbotron">
+            <noscript>Please enable JavaScript to view this interactive.</noscript>
+            <h4 class="text-center">Choose your water agency</h4>
+            <div id="content-action-bar">
+                <select id="water-supplier-list" class="form-control js-basic-single">
+                    <option>-- Select by hydrological region --</option>
+                    {% for report in object_list.option_list %}
+                        <optgroup label="{{ report.hydrologic_region }}"></optgroup>
+                        {% for supplier in report.suppliers %}
+                            <option value="{% settings_value 'URL_PATH' %}/{{ supplier.supplier_name|slugify }}">{{ supplier.supplier_name|title }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
             </div>
         </div>
-        <p class="lead"><strong>About the data</strong>: These charts show urban water suppliers in Southern California that saw daily water use per resident rise and fall by the most and least. They cover the most recent reporting period &mdash; {{ object_list.target_report|date:"F Y" }} &mdash; and are compared to the baseline measure from {{ object_list.target_report|get_last_year|date:"F Y" }}. Since the gallons of water used per person per day measurement does not take into account rainfall, temperature, humidity and population density, the <a href="http://www.waterboards.ca.gov/waterrights/">State Water Resources Control Board</a> discourages comparisons between water suppliers.</p>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-        <div class="decrease">
-            <header class="charts">
-                <h5 class="text-center">South Coast Decreased use</h5>
-                <p class="small-writing text-center">{{ object_list.target_report|date:"F Y" }} to {{ object_list.target_report|get_last_year|date:"F Y" }}</p>
-            </header>
-            <section class="display">
-                <ol>
-                    {% for report in object_list.largest_decrease %}
-                        {% if report.percent_change < 0 %}
-                            <li>
-                                <p class="text-right">
-                                    <a href="..{% url "water-supplier-detail" report.supplier_name.supplier_slug %}">{{ report.supplier_name|title }}</a>
-                                </p>
-                                <dl class="clearfix">
-                                    <dt></dt>
-                                    <dd class="neg" style="width: {{ report.percent_change|neg_to_posi|floatformat:2 }}%;">
-                                        <span>{{ report.percent_change|floatformat:2 }}%</span>
-                                    </dd>
-                                </dl>
+
+    {% include "cali_water/about_data.html" with current_year=object_list.target_report|date:"N Y" last_year=object_list.target_report|get_last_year|date:"Y" %}
+
+    {% for report in object_list.map_data %}
+        <div class="row region-detail">
+            <div class="hidden-xs col-sm-4 col-md-3 col-lg-3 image-map">
+                <img src="{{ STATIC_URL }}cali_water/images/cal-region-{{ report.hydrologic_region|slugify }}.png" />
+            </div>
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-9">
+                <h3><a href="..{% url 'water-region-display' report.hydrologic_region|slugify %}">{{ report.hydrologic_region }}</a></h3>
+                <p>Daily per capita residential water use {% increase_or_decrease report.this_month_baseline_avg report.this_month_avg %} in {{ object_list.target_report|date:"N Y" }} to an average of {{ report.this_month_avg|floatformat:2 }} gallons in the {{ report.hydrologic_region }} hydrologic region. That number is compared to the {{ object_list.target_report|get_last_year|date:"N Y" }} baseline. <a href="{% settings_value 'URL_PATH' %}/region/{{ report.hydrologic_region|slugify }}/reduction-comparison/">Click here</a> to see proposed reductions for this region. <span class="coal-chart-sentence show">Use the chart below to see how the {{ report.count }} agencies in this region performed.</span><span class="data-point-sentence hidden">Here are some statistics for the {{ report.count }} agencies in this region.</span></p>
+
+                <section class="coal-chart-container show">
+
+                    <!--
+                        based on census reporter distribution "circles on a line" charts by Ryan Pitts, Joe Germuska, Ian Dees and Sara Schnadt. example here: http://censusreporter.org/data/distribution/?table=B25064&geo_ids=860|16000US0644000
+
+                        formula to arrive at the circles on a line: https://github.com/censusreporter/censusreporter/blob/47ee559d3939ec00d2e39e1f540b277bc50bbff8/censusreporter/apps/census/static/js/comparisons.js#L703
+
+                        styles to arrive at the circles on a line: https://github.com/censusreporter/censusreporter/blob/47ee559d3939ec00d2e39e1f540b277bc50bbff8/censusreporter/apps/census/static/css/charts.css#L450
+                    -->
+
+                    <ul class="coal-chart">
+                        {% for supplier in report.suppliers %}
+                            <li id="{{ supplier.supplier_name|slugify }}" class="chart-point" style="left: {{ supplier.distribution_precent }}%;">
+                                <span class="point" data-index="{{ supplier.supplier_name|slugify }}">
+                                    <span class="hovercard">
+                                        <span class="text-center"><a class="label-title" href="{% settings_value 'URL_PATH' %}/{{ supplier.supplier_name|slugify }}/">{{ supplier.supplier_name|title }}</a></span><br />
+                                        <span class="value text-center">{{ supplier.calculated_rgpcd_2014|floatformat:2 }}</span>
+                                    </span>
+                                </span>
                             </li>
-                        {% endif %}
-                    {% endfor %}
-                </ol>
-            </section>
+                        {% endfor %}
+
+                        <li class="tick-mark tick-mark-min" style="left: {{ report.min_range }}%;">
+                            <span class="text-center"><strong>Min</strong> <br /> {{ report.this_min.calculated_rgpcd_2014__min|floatformat:2 }}</span>
+                        </li>
+
+                        <li class="tick-mark tick-mark-median" style="left: {{ report.median_range }}%;">
+                            <span class="text-center"><strong>Median</strong> <br /> {{ report.median|floatformat:2 }}</span>
+                        </li>
+                        <li class="tick-mark tick-mark-average" style="left: {{ report.average_range }}%;">
+                            <span class="text-center"><strong>Average</strong> <br /> {{ report.this_month_avg|floatformat:2 }}</span>
+                        </li>
+                        <li class="tick-mark tick-mark-max" style="left: {{ report.max_range }}%;">
+                            <span class="text-center"><strong>Max</strong> <br /> {{ report.this_max.calculated_rgpcd_2014__max|floatformat:2 }}</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="data-point-container hidden">
+                    <ul class="list-inline mobile-data-points">
+                        <li>
+                            <span class="text-center"><strong>Min</strong><br />{{ report.this_min.calculated_rgpcd_2014__min|floatformat:2 }}<br />gallons</span>
+                        </li>
+                        <li>
+                            <span class="text-center"><strong>Median</strong> <br /> {{ report.median|floatformat:2 }}<br />gallons</span>
+                        </li>
+                        <li>
+                            <span class="text-center"><strong>Average</strong> <br /> {{ report.this_month_avg|floatformat:2 }}<br />gallons</span>
+                        </li>
+                        <li>
+                            <span class="text-center"><strong>Max</strong> <br /> {{ report.this_max.calculated_rgpcd_2014__max|floatformat:2 }}<br />gallons</span>
+                        </li>
+                    </ul>
+                </section>
+
+            </div>
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-        <div class="increase">
-            <header class="charts">
-                <h5 class="text-center">South Coast Increased use</h5>
-                <p class="small-writing text-center">{{ object_list.target_report|date:"F Y" }} to {{ object_list.target_report|get_last_year|date:"F Y" }}</p>
-            </header>
-            <section class="display">
-                <ol>
-                    {% for report in object_list.largest_increase %}
-                        {% if report.percent_change > 0 %}
-                            <li>
-                                <p class="text-left">
-                                    <a href="..{% url "water-supplier-detail" report.supplier_name.supplier_slug %}">{{ report.supplier_name|title }}</a>
-                                </p>
-                                <dl class="clearfix">
-                                    <dt></dt>
-                                    <dd class="pos" style="width: {{ report.percent_change|neg_to_posi|floatformat:2 }}%;">
-                                        <span>{{ report.percent_change|floatformat:2 }}%</span>
-                                    </dd>
-                                </dl>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ol>
-            </section>
-        </div>
-    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block config_js %}
+    <script>
+        window.appConfig = {% app_config_object object_list.config_object %};
+        window.appConfig.embed_this = false;
+    </script>
 {% endblock %}
 
 {% block super_js %}
+    <script src="{{ STATIC_URL }}cali_water/scripts/_application.js"></script>
     <script>
-        window.appConfig = {% app_config_object object_list.config_object %};
-        document.getElementById("water-supplier-list").onchange = function() {
-            var selectedOption = this.value;
-            window.location.href = selectedOption;
-        }
+        $(document).ready(function(){
+            fn.enableSelectMenu();
+            fn.whichChartToDisplay();
+        });
     </script>
-    <script src="{% static 'scripts/_application_wrapper_0.5.js' %}"></script>
 {% endblock %}
