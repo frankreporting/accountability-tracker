@@ -15,6 +15,7 @@ from fabric.colors import green
 from fabric.contrib import django
 django.settings_module("accountability_tracker.settings_production")
 from django.conf import settings
+import django.core.urlresolvers
 
 env.project_name = "accountability_tracker"
 env.local_branch = "master"
@@ -150,13 +151,43 @@ def fetch_water_use():
     """
     ingest the latest data from the state water resources board
     """
-    local("python manage.py fetch_water_use")
+    local("python manage.py usage_fetch")
 
-def water_play():
+def tasks_water_use():
     """
-    run functions in the playground
+    ingest the latest data from the state water resources board
     """
-    local("python manage.py playground")
+    local("python manage.py usage_tasks")
+
+
+"""
+i see change
+"""
+def fetch_pin():
+    """
+    get the latest i see change submissions from PIN
+    """
+    local("python manage.py fetch_pin")
+
+def fetch_tweets():
+    """
+    get the latest i see change submissions from twitter
+    """
+    local("python manage.py fetch_tweets")
+
+def fetch_instagram():
+    """
+    get the latest i see change submissions from instagram
+    """
+    local("python manage.py fetch_instagram")
+
+def fetch_change():
+    """
+    pull #ISeeChange data from our three sources
+    """
+    fetch_pin()
+    fetch_tweets()
+    fetch_instagram()
 
 
 """
@@ -173,12 +204,6 @@ def svscrape():
     scrape candidate data from SmartVoter.org
     """
     local("python manage.py smart_voter_scraper")
-
-def springscrape():
-    """
-    scrape candidate data from SmartVoter.org
-    """
-    local("python manage.py spring2015_scraper")
 
 def loadkpccqa():
     """
@@ -234,3 +259,6 @@ def deploy():
 
 def __env_cmd(cmd):
     return env.bin_root + cmd
+
+def test_build():
+    local("python manage.py cali_water_baked_files")
